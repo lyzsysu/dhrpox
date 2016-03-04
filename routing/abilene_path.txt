@@ -1,0 +1,396 @@
+Paths from 1 to 2
+Path 1     1-2     100.00%
+
+Paths from 1 to 3
+Path 1     1-2-6-3     100.00%
+
+Paths from 1 to 4
+Path 1     1-2-6-7-4     100.00%
+
+Paths from 1 to 5
+Path 1     1-2-5     100.00%
+
+Paths from 1 to 6
+Path 1     1-2-6     100.00%
+
+Paths from 1 to 7
+Path 1     1-2-5-7     100.00%
+
+Paths from 1 to 8
+Path 1     1-2-5-8     100.00%
+
+Paths from 1 to 9
+Path 1     1-2-12-9     100.00%
+
+Paths from 1 to 10
+Path 1     1-2-5-8-10     100.00%
+
+Paths from 1 to 11
+Path 1     1-2-6-7-4-11     100.00%
+
+Paths from 1 to 12
+Path 1     1-2-12     100.00%
+
+Paths from 2 to 1
+Path 1     2-1     100.00%
+
+Paths from 2 to 3
+Path 1     2-6-3     100.00%
+
+Paths from 2 to 4
+Path 1     2-6-7-4     100.00%
+
+Paths from 2 to 5
+Path 1     2-5     100.00%
+
+Paths from 2 to 6
+Path 1     2-6     100.00%
+
+Paths from 2 to 7
+Path 1     2-5-7     100.00%
+
+Paths from 2 to 8
+Path 1     2-5-8     100.00%
+
+Paths from 2 to 9
+Path 1     2-12-9     100.00%
+
+Paths from 2 to 10
+Path 1     2-5-8-10     100.00%
+
+Paths from 2 to 11
+Path 1     2-6-7-4-11     100.00%
+
+Paths from 2 to 12
+Path 1     2-12     100.00%
+
+Paths from 3 to 1
+Path 1     3-6-2-1     100.00%
+
+Paths from 3 to 2
+Path 1     3-6-2     100.00%
+
+Paths from 3 to 4
+Path 1     3-6-7-4     100.00%
+
+Paths from 3 to 5
+Path 1     3-6-7-5     100.00%
+
+Paths from 3 to 6
+Path 1     3-6     100.00%
+
+Paths from 3 to 7
+Path 1     3-6-7     100.00%
+
+Paths from 3 to 8
+Path 1     3-6-7-5-8     100.00%
+
+Paths from 3 to 9
+Path 1     3-9     100.00%
+
+Paths from 3 to 10
+Path 1     3-6-7-4-10     100.00%
+
+Paths from 3 to 11
+Path 1     3-6-7-4-11     100.00%
+
+Paths from 3 to 12
+Path 1     3-9-12     100.00%
+
+Paths from 4 to 1
+Path 1     4-7-5-2-1     100.00%
+
+Paths from 4 to 2
+Path 1     4-7-5-2     100.00%
+
+Paths from 4 to 3
+Path 1     4-7-6-3     100.00%
+
+Paths from 4 to 5
+Path 1     4-7-5     100.00%
+
+Paths from 4 to 6
+Path 1     4-7-6     100.00%
+
+Paths from 4 to 7
+Path 1     4-7     100.00%
+
+Paths from 4 to 8
+Path 1     4-10-8     100.00%
+
+Paths from 4 to 9
+Path 1     4-7-6-3-9     100.00%
+
+Paths from 4 to 10
+Path 1     4-10     100.00%
+
+Paths from 4 to 11
+Path 1     4-11     100.00%
+
+Paths from 4 to 12
+Path 1     4-7-5-2-12     100.00%
+
+Paths from 5 to 1
+Path 1     5-2-1     100.00%
+
+Paths from 5 to 2
+Path 1     5-2     100.00%
+
+Paths from 5 to 3
+Path 1     5-7-6-3     100.00%
+
+Paths from 5 to 4
+Path 1     5-7-4     100.00%
+
+Paths from 5 to 6
+Path 1     5-2-6     100.00%
+
+Paths from 5 to 7
+Path 1     5-7     100.00%
+
+Paths from 5 to 8
+Path 1     5-8     100.00%
+
+Paths from 5 to 9
+Path 1     5-2-12-9     100.00%
+
+Paths from 5 to 10
+Path 1     5-8-10     100.00%
+
+Paths from 5 to 11
+Path 1     5-8-10-11     100.00%
+
+Paths from 5 to 12
+Path 1     5-2-12     100.00%
+
+Paths from 6 to 1
+Path 1     6-2-1     100.00%
+
+Paths from 6 to 2
+Path 1     6-2     100.00%
+
+Paths from 6 to 3
+Path 1     6-3     100.00%
+
+Paths from 6 to 4
+Path 1     6-7-4     100.00%
+
+Paths from 6 to 5
+Path 1     6-7-5     100.00%
+
+Paths from 6 to 7
+Path 1     6-7     100.00%
+
+Paths from 6 to 8
+Path 1     6-7-5-8     100.00%
+
+Paths from 6 to 9
+Path 1     6-3-9     100.00%
+
+Paths from 6 to 10
+Path 1     6-7-4-10     100.00%
+
+Paths from 6 to 11
+Path 1     6-7-4-11     100.00%
+
+Paths from 6 to 12
+Path 1     6-2-12     100.00%
+
+Paths from 7 to 1
+Path 1     7-5-2-1     100.00%
+
+Paths from 7 to 2
+Path 1     7-5-2     100.00%
+
+Paths from 7 to 3
+Path 1     7-6-3     100.00%
+
+Paths from 7 to 4
+Path 1     7-4     100.00%
+
+Paths from 7 to 5
+Path 1     7-5     100.00%
+
+Paths from 7 to 6
+Path 1     7-6     100.00%
+
+Paths from 7 to 8
+Path 1     7-5-8     100.00%
+
+Paths from 7 to 9
+Path 1     7-6-3-9     100.00%
+
+Paths from 7 to 10
+Path 1     7-4-10     100.00%
+
+Paths from 7 to 11
+Path 1     7-4-11     100.00%
+
+Paths from 7 to 12
+Path 1     7-5-2-12     100.00%
+
+Paths from 8 to 1
+Path 1     8-5-2-1     100.00%
+
+Paths from 8 to 2
+Path 1     8-5-2     100.00%
+
+Paths from 8 to 3
+Path 1     8-5-7-6-3     100.00%
+
+Paths from 8 to 4
+Path 1     8-10-4     100.00%
+
+Paths from 8 to 5
+Path 1     8-5     100.00%
+
+Paths from 8 to 6
+Path 1     8-5-2-6     100.00%
+
+Paths from 8 to 7
+Path 1     8-5-7     100.00%
+
+Paths from 8 to 9
+Path 1     8-5-2-12-9     100.00%
+
+Paths from 8 to 10
+Path 1     8-10     100.00%
+
+Paths from 8 to 11
+Path 1     8-10-11     100.00%
+
+Paths from 8 to 12
+Path 1     8-5-2-12     100.00%
+
+Paths from 9 to 1
+Path 1     9-3-6-2-1     100.00%
+
+Paths from 9 to 2
+Path 1     9-3-6-2     100.00%
+
+Paths from 9 to 3
+Path 1     9-3     100.00%
+
+Paths from 9 to 4
+Path 1     9-3-6-7-4     100.00%
+
+Paths from 9 to 5
+Path 1     9-3-6-7-5     100.00%
+
+Paths from 9 to 6
+Path 1     9-3-6     100.00%
+
+Paths from 9 to 7
+Path 1     9-3-6-7     100.00%
+
+Paths from 9 to 8
+Path 1     9-3-6-7-5-8     100.00%
+
+Paths from 9 to 10
+Path 1     9-3-6-7-4-10     100.00%
+
+Paths from 9 to 11
+Path 1     9-3-6-7-4-11     100.00%
+
+Paths from 9 to 12
+Path 1     9-12     100.00%
+
+Paths from 10 to 1
+Path 1     10-8-5-2-1     100.00%
+
+Paths from 10 to 2
+Path 1     10-8-5-2     100.00%
+
+Paths from 10 to 3
+Path 1     10-4-7-6-3     100.00%
+
+Paths from 10 to 4
+Path 1     10-4     100.00%
+
+Paths from 10 to 5
+Path 1     10-8-5     100.00%
+
+Paths from 10 to 6
+Path 1     10-4-7-6     100.00%
+
+Paths from 10 to 7
+
+Paths from 10 to 8
+Path 1     10-8     100.00%
+
+Paths from 10 to 9
+Path 1     10-4-7-6-3-9     100.00%
+
+Paths from 10 to 11
+Path 1     10-11     100.00%
+
+Paths from 10 to 12
+Path 1     10-8-5-2-12     100.00%
+
+Paths from 11 to 1
+Path 1     11-10-8-5-2-1     100.00%
+
+Paths from 11 to 2
+Path 1     11-4-7-5-2     100.00%
+
+Paths from 11 to 3
+Path 1     11-4-7-6-3     100.00%
+
+Paths from 11 to 4
+Path 1     11-4     100.00%
+
+Paths from 11 to 5
+Path 1     11-10-8-5     100.00%
+
+Paths from 11 to 6
+Path 1     11-4-7-6     100.00%
+
+Paths from 11 to 7
+Path 1     11-4-7     100.00%
+
+Paths from 11 to 8
+Path 1     11-10-8     100.00%
+
+Paths from 11 to 9
+Path 1     11-4-7-6-3-9     100.00%
+
+Paths from 11 to 10
+Path 1     11-10     100.00%
+
+Paths from 11 to 12
+Path 1     11-4-7-5-2-12     100.00%
+
+Paths from 12 to 1
+Path 1     12-2-1     100.00%
+
+Paths from 12 to 2
+Path 1     12-2     100.00%
+
+Paths from 12 to 3
+Path 1     12-9-3     100.00%
+
+Paths from 12 to 4
+Path 1     12-9-3-6-7-4     100.00%
+
+Paths from 12 to 5
+Path 1     12-2-5     100.00%
+
+Paths from 12 to 6
+Path 1     12-9-3-6     100.00%
+
+Paths from 12 to 7
+Path 1     12-9-3-6-7     100.00%
+
+Paths from 12 to 8
+Path 1     12-2-5-8     100.00%
+
+Paths from 12 to 9
+Path 1     12-9     100.00%
+
+Paths from 12 to 10
+Path 1     12-9-3-6-7-4-10     60.37%
+Path 2     12-2-5-8-10     39.63%
+
+Paths from 12 to 11
+Path 1     12-9-3-6-7-4-11     100.00%
+
