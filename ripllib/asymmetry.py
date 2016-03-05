@@ -5,11 +5,16 @@ Asymmetric topology creation and drawing.
 
 '''
 
-import sys
 import os
+usr_home = os.path.expanduser('~')
+
+import sys
+sys.path.append(usr_home + "/dhrpox/topology")
 
 from mininet.topo import Topo
 from mininet.link import TCLink
+
+from readlink import read_link
 
 class NodeID(object):
     '''Topo node identifier.'''
@@ -37,9 +42,6 @@ class NodeID(object):
         return {}
 
 class AsymmetricTopo(Topo):
-
-    NUMSWITCH = 0
-    NUMLINK = 0
     
     class Node(NodeID):
     
@@ -119,7 +121,7 @@ class AsymmetricTopo(Topo):
         nodes = [n for n in self.g[name] if self.id_gen(name = n).is_switch()]
         return nodes
 
-    def __init__( self, toponame = "abilene", NUMHOST = 2):
+    def __init__( self, toponame = "abilene", num_host = 2):
         
         Topo.__init__( self )
         
@@ -127,41 +129,22 @@ class AsymmetricTopo(Topo):
 
         path = os.path.expanduser('~') + "/dhrpox/topology/" + toponame + ".txt"
 
-        f = open(path)
-        line = f.readline()
-        link = {}
-        switch = {}
-        capacity = {}
-        while line:
-            if line.split(" ")[0] == "#": # this line is comment
-                pass
-            elif line.split(" ")[0] == "NUMSWITCH":
-                NUMSWITCH = int(line.split(" ")[1])
-            elif line.split(" ")[0] == "NUMLINK":
-                NUMLINK = int(line.split(" ")[1])
-            else:
-                first = line.split(" ")[0]
-                second = line.split(" ")[1]
-                link_num = line.split(" ")[2]
-                link[link_num] = (first, second)
-                link_capacity = line.split(" ")[3]
-                capacity[link_num] = int(link_capacity)
-            line = f.readline()
-        f.close()
 
-        for e in range(1, NUMSWITCH + 1):
+        links, capacity, num_link, num_switch = read_link(path)
+
+        for e in range(1, num_switch + 1):
             sw_id = self.id_gen(e, 1).name_str()
             sw_opts = self.def_nopts(sw_id)
             self.add_switch(sw_id, **sw_opts)
 
-            for h in range(2, 2 + NUMHOST):
+            for h in range(2, 2 + num_host):
                 host_id = self.id_gen(e,h).name_str()
                 host_opts = self.def_nopts(host_id)
                 self.add_host(host_id, **host_opts)
                 self.add_link(host_id, sw_id)
      
-        for l in link:
-            (first, second) = link[l]
+        for l in links:
+            (first, second) = links[l]
             if first > second:
                 continue
-            self.add_link(str(first) + "_1", str(second) + "_1", bw = capacity[l])
+            self.add_link(str(first) + "_1", str(second) + "_1", bw = capacity[l] / 10)

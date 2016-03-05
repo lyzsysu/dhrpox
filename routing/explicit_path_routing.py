@@ -12,13 +12,9 @@ sys.path.append(usr_home + "/dhrpox/routing")
 
 from readlink import read_link
 from readtraffic import read_traffic
-from destination_based_routing_problem import destination_based_routing, get_basic_tm, allocation_2_fraction, fraction_2_path
+from destination_based_routing import destination_based_routing, get_basic_tm, allocation_2_fraction, fraction_2_path
 
 import cplex
-
-# global variable
-NUMMATRIX = 288
-NUMSWITCH = 12
 
 def _buildmodel(prob, tm, links, capactity, selected_node_pairs, utilization_optimal, background_load):
     
@@ -69,7 +65,7 @@ def _buildmodel(prob, tm, links, capactity, selected_node_pairs, utilization_opt
 
     for s in range(num_pair):
         (src, dst) = selected_node_pairs[s]
-        for k in range(NUMSWITCH): 
+        for k in range(num_switch): 
             count = 0
             for l in range(num_link):
                 (fst, sec) = links[l]
@@ -107,10 +103,13 @@ def path_2_route(paths):
         have contribution onthe link, and save it in the contribution[] list
     '''
 
-    route = [[[]for col in range(NUMSWITCH)]for row in range(NUMSWITCH)]
-    percent = [[[]for col in range(NUMSWITCH)]for row in range(NUMSWITCH)]
-    for src in range(NUMSWITCH):
-        for dst in range(NUMSWITCH):
+    num_switch = len(paths)
+
+    route = [[[]for col in range(num_switch)]for row in range(num_switch)]
+    percent = [[[]for col in range(num_switch)]for row in range(num_switch)]
+
+    for src in range(num_switch):
+        for dst in range(num_switch):
             for path in paths[src][dst]:
                 route[src][dst].append(path.split("     ")[0])
                 percent[src][dst].append(path.split("     ")[1])
@@ -124,10 +123,12 @@ def route_2_contribution(route):
         have contribution onthe link, and save it in the "contribution" dict
     '''
 
+    num_switch = len(route)
+
     contribution = {}
 
-    for src in range(NUMSWITCH):
-        for dst in range(NUMSWITCH):
+    for src in range(num_switch):
+        for dst in range(num_switch):
             if src != dst:
                 for num in range(len(route[src][dst])):
                   switch = route[src][dst][num].split("-")
@@ -141,7 +142,7 @@ def route_2_contribution(route):
 
     return contribution
 
-def calculate_background_load(m, selected_node_pairs, route, percent):
+def calculate_background_load(m, selected_node_pairs, links, route, percent):
     
     '''
         calculate the background load:
@@ -149,11 +150,13 @@ def calculate_background_load(m, selected_node_pairs, route, percent):
         on the same link, except the selected_node_pairs
     '''
 
-    tmp_link_traffic = [[0 for col in range(NUMSWITCH)]for row in range(NUMSWITCH)]
+    num_switch = len(route)
+
+    tmp_link_traffic = [[0 for col in range(num_switch)]for row in range(num_switch)]
     link_traffic = {}
 
-    for src in range(NUMSWITCH):
-        for dst in range(NUMSWITCH):
+    for src in range(num_switch):
+        for dst in range(num_switch):
 
             if (src, dst) in selected_node_pairs:
               continue  
@@ -175,7 +178,7 @@ def calculate_background_load(m, selected_node_pairs, route, percent):
 
     return link_traffic
 
-def calculate_performance(selected_node_pairs, m, route, percent):
+def calculate_performance(selected_node_pairs, m, links, route, percent):
 
     '''
         calculate performance:
@@ -184,7 +187,7 @@ def calculate_performance(selected_node_pairs, m, route, percent):
 
     link_utilization = {}
     mlu = 0.0
-    link_traffic = calculate_background_load(m, selected_node_pairs, route, percent)
+    link_traffic = calculate_background_load(m, selected_node_pairs, links, route, percent)
 
     '''
         get the link utilization by traffic / capacity
@@ -215,15 +218,15 @@ def calculate_performance(selected_node_pairs, m, route, percent):
 
     return performance, most_congested_link
 
-def select_node_pairs(tm, utilization_optimal, k, route, percent):
+def select_node_pairs(tm, utilization_optimal, links, route, percent, k):
 
     '''
         this function is used to select node_pairs for explicit routing
         k is the number of selecting node pairs
 
         PAY ATTANTION!!!    
-            the pairs in select node pair are range(NUMSWITCH)
-            which means src and dst both range from 0 to NUMSWITCH - 1
+            the pairs in select node pair are range(num_switch)
+            which means src and dst both range from 0 to num_switch - 1
     '''
 
     selected_node_pairs = []
@@ -241,7 +244,7 @@ def select_node_pairs(tm, utilization_optimal, k, route, percent):
 
         for m in tm:
 
-            performance, congested_link = calculate_performance(selected_node_pairs, m, route, percent)
+            performance, congested_link = calculate_performance(selected_node_pairs, m, links, route, percent)
 
             if performance > max_performance:
                 max_performance = performance
@@ -262,7 +265,7 @@ def select_node_pairs(tm, utilization_optimal, k, route, percent):
             if (src, dst) in selected_node_pairs:
                 continue
             selected_node_pairs.append((src, dst))
-            performance, congested_link = calculate_performance(selected_node_pairs, m, route, percent)
+            performance, congested_link = calculate_performance(selected_node_pairs, m, links, route, percent)
             selected_node_pairs.pop()
             #print "after select out ", (src + 1, dst + 1), " the performance:", performance
             #print   
@@ -281,16 +284,16 @@ def explicit_routing(tm, utilization_optimal):
         this funciton is used to calculate the explicit_path
 
         tm is a tm[num_matrix][src][dst] 3_dimension_list
-            src range from 0 to NUMSWITCH
-            dst range from 0 to NUMSWITCH
+            src range from 0 to num_switch
+            dst range from 0 to num_switch
 
-        utilization_optimal is a list, range from 0 to NUMMATRIX
+        utilization_optimal is a list, range from 0 to num_matrix
 
         k is the number of selected_node_pairs
 
     '''
 
-    basic_tm = get_basic_tm(tm, len(tm))
+    basic_tm = get_basic_tm(tm, len(tm), num_switch)
 
     MLU, allocation = destination_based_routing(basic_tm, links, capacity)
 
@@ -302,7 +305,9 @@ def explicit_routing(tm, utilization_optimal):
 
     route, percent = path_2_route(paths)
 
-    selected_node_pairs = select_node_pairs(tm, utilization_optimal, 3, route, percent)
+    num_selected = 3
+
+    selected_node_pairs = select_node_pairs(tm, utilization_optimal, links, route, percent, num_selected)
 
     print "finally selected pairs: ", selected_node_pairs
 
@@ -313,7 +318,7 @@ def explicit_routing(tm, utilization_optimal):
     background_load = [{} for m in tm]
 
     for m in tm:
-        background_load[m] = calculate_background_load(m, selected_node_pairs, route, percent)
+        background_load[m] = calculate_background_load(m, selected_node_pairs, links, route, percent)
 
     '''
         use CPLEX to solve the linear programming problem to get 
@@ -395,13 +400,13 @@ def search_path(p, src, tmp_next_node, tmp_path, tmp_percent, fraction, links, p
 
 if __name__ == "__main__":
 
-    tm = read_traffic(usr_home + "/dhrpox/traffic/2014_06_24TM")
+    num_matrix = 288
 
-    links, capacity = read_link(usr_home + "/dhrpox/topology/abilene.txt")
+    links, capacity, num_link, num_switch = read_link(usr_home + "/dhrpox/topology/abilene.txt")
 
-    NUMMATRIX = len(tm)
+    tm = read_traffic(usr_home + "/dhrpox/traffic/2014_06_24TM", num_matrix, num_switch)
 
-    utilization_optimal = [0] * NUMMATRIX
+    utilization_optimal = [0] * num_matrix
 
     for t in range(0, 1):
         utilization_optimal[t], ignore = destination_based_routing(tm[t], links, capacity)

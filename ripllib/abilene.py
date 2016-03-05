@@ -5,14 +5,16 @@ Abilene topology creation and drawing.
 
 '''
 
-import sys
 import os
+usr_home = os.path.expanduser('~')
+
+import sys
+sys.path.append(usr_home + "/dhrpox/topology")
 
 from mininet.topo import Topo
 from mininet.link import TCLink
 
-NUMSWITCH = 12
-NUMLINK = 30
+from readlink import read_link
 
 class NodeID(object):
     '''Topo node identifier.'''
@@ -127,28 +129,9 @@ class AbileneTopo(Topo):
 
         path = os.path.expanduser('~') + "/dhrpox/topology/abilene.txt"
 
-        f = open(path)
-        line = f.readline()
-        link = {}
-        switch = {}
-        capacity = {}
-        while line:
-            if line.split(" ")[0] == "#": # this line is comment
-                pass
-            elif line.split(" ")[0] == "NUMSWITCH":
-                NUMSWITCH = int(line.split(" ")[1])
-            elif line.split(" ")[0] == "NUMLINK":
-                NUMLINK = int(line.split(" ")[1])
-            else:
-                link_num = line.split(" ")[2]
-                link_capacity = line.split(" ")[3]
-                link[link_num] = \
-                (int(line.split(" ")[0]), int(line.split(" ")[1]))
-                capacity[link_num] = int(link_capacity)
-            line = f.readline()
-        f.close()
+        links, capacity, num_link, num_switch = read_link(path)
 
-        for e in range(1, NUMSWITCH + 1):
+        for e in range(1, num_switch + 1):
             sw_id = self.id_gen(e, 1).name_str()
             sw_opts = self.def_nopts(sw_id)
             self.add_switch(sw_id, **sw_opts)
@@ -159,8 +142,9 @@ class AbileneTopo(Topo):
                 self.add_host(host_id, **host_opts)
                 self.add_link(host_id, sw_id)
      
-        for l in link:
-            (first, second) = link[l]
+        for l in links:
+
+            (first, second) = links[l]
             if first > second:
                 continue
-            self.add_link(str(first) + "_1", str(second) + "_1", bw = capacity[l])
+            self.add_link(str(first) + "_1", str(second) + "_1", bw = capacity[l] / 10)

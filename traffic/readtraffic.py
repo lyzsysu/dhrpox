@@ -3,44 +3,39 @@
 import sys
 import os
 
-import cplex
+def read_traffic(filename, num_matrix, num_switch):
 
-NUMSWITCH = 12
-NUMMATRIX = 288
-
-def read_traffic(filename):
-
-    traffic_matrix = [[[0.0 for col in range(NUMSWITCH)]for row in range(NUMSWITCH)]for row in range(NUMMATRIX)]
+    traffic_matrix = [[[0.0 for col in range(num_switch)]for row in range(num_switch)]for row in range(num_matrix)]
 
     f = open(filename)
     line = f.readline()
 
-    matrix_num = 0
+    num = 0
     while line:
         src = 0
         dst = 0
-        for word in line.split(" "):
-            if word == "\n":
+        for data in line.split(" "):
+            if data == "\n":
                 break
-            traffic_matrix[matrix_num][src][dst] = int(float(word) / 3000.0)
+            traffic_matrix[num][src][dst] = int(float(data) / 3000.0)
             dst = dst + 1
             if dst == 12:
                 src = src + 1
                 dst = 0
-        matrix_num = matrix_num + 1
+        num = num + 1
         line = f.readline()
     f.close()
 
     return traffic_matrix
 
-def get_basic_tm(traffic_matrix, tm_num):
+def get_basic_tm(traffic_matrix, num_matrix, num_switch):
 
-    basic_traffic_matrix = [[0.0 for col in range(NUMSWITCH)]for row in range(NUMSWITCH)]
+    basic_traffic_matrix = [[0.0 for col in range(num_switch)]for row in range(num_switch)]
     
-    for s in range(NUMSWITCH):
-        for d in range(NUMSWITCH):
+    for s in range(num_switch):
+        for d in range(num_switch):
             max_traffic = 0
-            for m in range(tm_num):
+            for m in range(num_matrix):
                 max_traffic = max(max_traffic, traffic_matrix[m][s][d])
             basic_traffic_matrix[s][d] = max_traffic 
 
@@ -48,26 +43,28 @@ def get_basic_tm(traffic_matrix, tm_num):
 
 if __name__ == "__main__":
 
-    traffic_matrix = [[[0 for col in range(NUMSWITCH)]for row in range(NUMSWITCH)]for row in range(NUMMATRIX)]
-
-    basic_traffic_matrix = [[0 for col in range(NUMSWITCH)]for row in range(NUMSWITCH)]
-
     path = os.path.expanduser('~') + "/dhrpox/traffic/2014_06_24TM"
 
-    traffic_matrix = read_traffic(path)
+    num_matrix = 288
+    num_switch = 12
 
-    basic_traffic_matrix = get_basic_tm(traffic_matrix, len(traffic_matrix))
+    traffic_matrix = read_traffic(path, num_matrix, num_switch)
+
+    num_matrix = len(traffic_matrix)
+    num_switch = len(traffic_matrix[0])
+
+    basic_traffic_matrix = get_basic_tm(traffic_matrix, num_matrix, num_switch)
 
     # show all traffic matrixs
     for m in range(0, 1):
-        for s in range(NUMSWITCH):
-            for d in range(NUMSWITCH):
+        for s in range(num_switch):
+            for d in range(num_switch):
                 print ("%d" % traffic_matrix[m][s][d]),
             print
         print
 
     # show the basic traffic matrix
-    #for s in range(NUMSWITCH):
-    #    for d in range(NUMSWITCH):
+    #for s in range(num_switch):
+    #    for d in range(num_switch):
     #        print ("%f " % basic_traffic_matrix[s][d]),
     #    print

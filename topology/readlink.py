@@ -13,9 +13,9 @@ def read_link(filename):
         if line.split(" ")[0] == "#": # this line is comment
             pass
         elif line.split(" ")[0] == "NUMSWITCH":
-            NUMSWITCH = int(line.split(" ")[1])
+            num_switch = int(line.split(" ")[1])
         elif line.split(" ")[0] == "NUMLINK":
-            NUMLINK = int(line.split(" ")[1])
+            num_link = int(line.split(" ")[1])
         else:
             link_num = int(line.split(" ")[2])
             link_capacity = int(line.split(" ")[3])
@@ -25,13 +25,13 @@ def read_link(filename):
             # the unit of capacity is kbps
         line = f.readline()
     f.close()
-    return links, capacity
+    return links, capacity, num_link, num_switch
 
 if __name__ == "__main__":
 
     path = os.path.realpath("../topology/abilene.txt")
 
-    links,capacity = read_link(path)
+    links, capacity, num_link, num_switch = read_link(path)
 
     for l in capacity:
         print capacity[l]

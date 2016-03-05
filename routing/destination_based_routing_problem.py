@@ -194,8 +194,11 @@ def destination_based_routing(tm, links, capacity):
 
     # sys.stdout is the default output stream for log and results
     # so these lines may be omitted
-    prob.set_results_stream("/dev/null")
-    prob.set_log_stream("/dev/null")
+    #prob.set_results_stream("/dev/null")
+    #prob.set_log_stream("/dev/null")
+
+    prob.set_results_stream(sys.stdout)
+    prob.set_log_stream(sys.stdout)
 
     ic_handle = _buildmodel(prob, tm, links, capacity)
 
@@ -236,14 +239,14 @@ def destination_based_routing(tm, links, capacity):
     #    result = tr / MLU 
     #    print(tr, end=' ')
 
-    f = open("/home/mininet/dhrpox/routing/allocation.txt","w+")
-    for s in range(NUMSWITCH):
-        for l in range(NUMLINK):
-            f.write(str(allocation[s][l]))
-            f.write(" ")
-        f.write("\n")
-    f.write(str(float(x[360])))
-    f.close()
+    #f = open("/home/mininet/dhrpox/routing/allocation.txt","w+")
+    #for s in range(NUMSWITCH):
+    #    for l in range(NUMLINK):
+    #        f.write(str(allocation[s][l]))
+    #        f.write(" ")
+    #    f.write("\n")
+    #f.write(str(float(x[360])))
+    #f.close()
  
     return MLU, allocation
 
