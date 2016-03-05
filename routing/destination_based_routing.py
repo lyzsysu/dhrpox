@@ -124,14 +124,6 @@ def allocation_2_fraction(allocation, links):
             else:
                 fraction[dst][l] = allocation[dst][l] / traffic_sum
 
-    #f = open("/home/mininet/dhrpox/routing/fraction.txt","w+")
-    #for s in range(num_switch):
-    #    for l in range(num_link):
-    #        f.write(str(fraction[s][l]))
-    #        f.write(" ")
-    #    f.write("\n")
-    #f.close()
-    
     return fraction
 
 def fraction_2_path(fraction, links):
@@ -149,22 +141,6 @@ def fraction_2_path(fraction, links):
         tmp_path = str(dst + 1)
         tmp_percent = 1.0
         search_path(dst, dst + 1, tmp_path, tmp_percent, fraction, links, paths)
-
-    # write the final path to the abilene_path.txt
-    #f = open(usr_home + "/dhrpox/routing/abilene_path.txt","w+")
-    #for src in range(num_switch):
-    #    for dst in range(num_switch):
-    #        if src == dst:
-    #            continue
-    #        f.write("Paths from %d to %d\n" % (src + 1, dst + 1))
-    #        count  = 1
-    #        for p in paths[src][dst]:
-    #            f.write("Path %d     " % count)
-    #            f.write("%s" % p)
-    #            f.write("\n")
-    #            count = count + 1
-    #        f.write("\n")
-    #f.close()
 
     return paths
 
@@ -237,15 +213,6 @@ def destination_based_routing(tm, links, capacity):
     #    result = tr / MLU 
     #    print(tr, end=' ')
 
-    #f = open("/home/mininet/dhrpox/routing/allocation.txt","w+")
-    #for s in range(num_switch):
-    #    for l in range(num_link):
-    #        f.write(str(allocation[s][l]))
-    #        f.write(" ")
-    #    f.write("\n")
-    #f.write(str(float(x[360])))
-    #f.close()
- 
     return MLU, allocation
 
 if __name__ == "__main__":
@@ -260,9 +227,42 @@ if __name__ == "__main__":
 
     MLU, allocation = destination_based_routing(basic_traffic_matrix, links, capacity)
 
+    #f = open("/home/mininet/dhrpox/routing/allocation.txt","w+")
+    #for s in range(num_switch):
+    #    for l in range(num_link):
+    #        f.write(str(allocation[s][l]))
+    #        f.write(" ")
+    #    f.write("\n")
+    #f.write(str(float(x[360])))
+    #f.close()
+ 
     fraction = allocation_2_fraction(allocation, links)
 
+    #f = open("/home/mininet/dhrpox/routing/fraction.txt","w+")
+    #for s in range(num_switch):
+    #    for l in range(num_link):
+    #        f.write(str(fraction[s][l]))
+    #        f.write(" ")
+    #    f.write("\n")
+    #f.close()
+    
     paths = fraction_2_path(fraction, links)
+
+    # write the final path to the abilene_path.txt
+    f = open(usr_home + "/dhrpox/path/abilene_path.txt","w+")
+    for src in range(num_switch):
+        for dst in range(num_switch):
+            if src == dst:
+                continue
+            f.write("Paths from %d to %d\n" % (src + 1, dst + 1))
+            count  = 1
+            for p in paths[src][dst]:
+                f.write("Path %d     " % count)
+                f.write("%s" % p)
+                f.write("\n")
+                count = count + 1
+            f.write("\n")
+    f.close()
 
     # print the result of fraction
     #for dst in range(num_switch):
