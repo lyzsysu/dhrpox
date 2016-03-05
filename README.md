@@ -50,8 +50,10 @@ Use a CS 244 Mininet VM to run the code (either from the class website or an Ama
     `$ cd ~/244proj`
 
     Terminal #1 - start the remote controller
+
     `$ sudo ~/pox/pox.py controllers.dhrpox --topo=abilene`
 
     Terminal #2 - start the mininet
+
     `$ sudo mn --custom ~/dhrpox/ripllib/mn.py --topo abilene --controller=remote --link=tc --mac`
 
