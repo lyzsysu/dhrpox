@@ -1,10 +1,10 @@
-<<<<<<< HEAD
-Stanford CS244 Final Project
+
+The Dynamic Hybrid Routing Controller Project
 ============================
 
-This is an implementation of the Hedera controller supporting Global First Fit from http://bnrg.cs.berkeley.edu/~randy/Courses/CS294.S13/7.3.pdf. 
+This is an implementation of the Dynamic Hybrid Routing: Achieve Load Balancing for Changing Traffic Demands
 
-It is built on top of Brandon Heller's Ripl library and POX controller with minor changes to both to support version consistency and Hedera functionality.
+It is built on top of Brandon Heller's Ripl library, Stanford CS244 Final Project and POX controller with minor changes to both to support version consistency and Hedera functionality.
 
 Use a CS 244 Mininet VM to run the code (either from the class website or an Amazon EC2 instance).
 
@@ -39,9 +39,9 @@ Use a CS 244 Mininet VM to run the code (either from the class website or an Ama
 
     `$ cd ~`
 
-    `$ git clone https://github.com/iwalsh/244proj.git`
+    `$ git clone https://github.com/lyzsysu/dhrpox.git`
 
-    `cd 244proj/`
+    `cd dhrpox/`
 
     `$ sudo python setup.py install`
 
@@ -49,75 +49,9 @@ Use a CS 244 Mininet VM to run the code (either from the class website or an Ama
 
     `$ cd ~/244proj`
 
-    `$ sudo ./run.sh`
+    Terminal #1 - start the remote controller
+    `$ sudo ~/pox/pox.py controllers.dhrpox --topo=abilene`
 
-7. Plot the results
+    Terminal #2 - start the mininet
+    `$ sudo mn --custom ~/dhrpox/ripllib/mn.py --topo abilene --controller=remote --link=tc --mac`
 
-    `$ cd ~/244proj`
-
-    `$ python plot_results myAwesomePlot.png`
-
-BONUS:
-
-If you don't want to run the full measurement suite, you can run one measurement
-at a time, like so:
-
-`$ cd ~/244proj`
-
-Terminal #1 - start the remote controller using ECMP flow scheduling
-
-`$ ~/pox/pox.py controllers.riplpox --topo=ft,4 --routing=hashed --mode=reactive`
-
-Terminal #2 - run our measurement script on a sample traffic pattern
-
-`$ sudo python hedera.py ecmp traffic/stride2.json`
-
-Alternate Terminal #1 - start the Hedera controller using Global First-Fit flow scheduling
-
-`~/pox/pox.py controllers.hederaController --topo=ft,4`
-=======
-# The Dynamic Hybrid Routing Controller Project
-This is an implementation of the Dynamic Hybrid Routing controller supporting pre-installed paths from
-
-    "Dynamic Hybrid Routing: Achieve Load Balancing for Changing Traffic Demands"
-
-It is built on top of Brandon Heller's Ripl library and POX controller and Stanford CS244 Final Project with minor changes to support DHR functionality.
-
-Use a CS 244 Mininet VM to run the code
-
-1.Switch to the CS 244 version of Mininet
-
-  $ cd ~/mininet
-  
-2.Fix the module dependencies for this version
-
-  $ git checkout -b cs244 origin/class/cs244
-  
-  (^change this line: "-OVS_KMOD = 'openvswitch_mod'" to: "OVS_KMOD = 'openvswitch'")
-
-3.Install the correct version
-
-  $ cd ~/mininet
-  
-  $ sudo make install
-  
-4.Switch to the 'dart' branch of POX
-
-  $ cd ~/pox
-  
-  $ git checkout dart
-  
-  $ git pull origin dart
-  
-5.Clone our project repo
-
-  $ cd ~
-
-  $ git clone https://github.com/lyzsysu/dhrpox.git
-
-  cd 244proj/
-  
-  $ sudo python setup.py install
-
-  
->>>>>>> 398fac0ab8f606146c6621784494ee95d00ce181
