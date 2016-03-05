@@ -9,8 +9,7 @@ import sys
 sys.path.append(usr_home + "/dhrpox/topology")
 sys.path.append(usr_home + "/dhrpox/traffic")
 from readlink import read_link
-from readtraffic import read_traffic
-from readtraffic import get_basic_tm
+from readtraffic import *
 
 import cplex
 
