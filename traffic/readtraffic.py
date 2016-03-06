@@ -43,9 +43,9 @@ def get_basic_tm(traffic_matrix, num_matrix, num_switch):
 
 if __name__ == "__main__":
 
-    path = os.path.expanduser('~') + "/dhrpox/traffic/2014_06_24TM"
+    path = os.path.expanduser('~') + "/dhrpox/traffic/2014_06_24_12TM"
 
-    num_matrix = 288
+    num_matrix = 12
     num_switch = 12
 
     traffic_matrix = read_traffic(path, num_matrix, num_switch)

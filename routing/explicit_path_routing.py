@@ -16,7 +16,7 @@ from destination_based_routing import destination_based_routing, get_basic_tm, a
 
 import cplex
 
-def _buildmodel(prob, tm, links, capactity, selected_node_pairs, utilization_optimal, background_load):
+def _buildmodel(prob, selected_node_pairs, tm, links, capacity, utilization_optimal, background_load):
     
     '''
         build the model for the explicit routing
@@ -26,9 +26,10 @@ def _buildmodel(prob, tm, links, capactity, selected_node_pairs, utilization_opt
 
     prob.objective.set_sense(prob.objective.sense.minimize)
 
-    num_link = len(links)
-
     num_pair = len(selected_node_pairs)
+    num_matrix = len(tm)
+    num_switch = len(tm[0])
+    num_link = len(links)
 
     obj = [sufficiently_small_number] * (num_pair * num_link + 1)
     colnames = [""] * (num_pair * num_link + 1)
@@ -44,7 +45,7 @@ def _buildmodel(prob, tm, links, capactity, selected_node_pairs, utilization_opt
     prob.variables.add(obj = obj, names = colnames)
     last_column = prob.variables.get_num() - 1
      
-    for m in tm:
+    for m in range(num_matrix):
         for l in range(num_link):
             #(fst, sec) = links[l]
             for s in range(num_pair):
@@ -142,7 +143,7 @@ def route_2_contribution(route):
 
     return contribution
 
-def calculate_background_load(m, selected_node_pairs, links, route, percent):
+def calculate_background_load(m, selected_node_pairs, tm, links, route, percent):
     
     '''
         calculate the background load:
@@ -178,7 +179,7 @@ def calculate_background_load(m, selected_node_pairs, links, route, percent):
 
     return link_traffic
 
-def calculate_performance(selected_node_pairs, m, links, route, percent):
+def calculate_performance(m, selected_node_pairs, tm, links, capacity, route, percent, utilization_optimal):
 
     '''
         calculate performance:
@@ -187,7 +188,7 @@ def calculate_performance(selected_node_pairs, m, links, route, percent):
 
     link_utilization = {}
     mlu = 0.0
-    link_traffic = calculate_background_load(m, selected_node_pairs, links, route, percent)
+    link_traffic = calculate_background_load(m, selected_node_pairs, tm, links, route, percent)
 
     '''
         get the link utilization by traffic / capacity
@@ -214,11 +215,9 @@ def calculate_performance(selected_node_pairs, m, links, route, percent):
  
     performance = mlu / utilization_optimal[m]
 
-    #print "the traffic: ", link_traffic[11][1]," the mlu: ", mlu, " next congested link: ", most_congested_link
-
     return performance, most_congested_link
 
-def select_node_pairs(tm, utilization_optimal, links, route, percent, k):
+def select_node_pairs(tm, links, capacity, route, percent, utilization_optimal, k):
 
     '''
         this function is used to select node_pairs for explicit routing
@@ -228,6 +227,9 @@ def select_node_pairs(tm, utilization_optimal, links, route, percent, k):
             the pairs in select node pair are range(num_switch)
             which means src and dst both range from 0 to num_switch - 1
     '''
+
+    num_matrix = len(tm)
+    num_switch = len(tm[0])
 
     selected_node_pairs = []
 
@@ -242,9 +244,9 @@ def select_node_pairs(tm, utilization_optimal, links, route, percent, k):
             in the most congested traffic matrix
         '''
 
-        for m in tm:
+        for m in range(num_matrix):
 
-            performance, congested_link = calculate_performance(selected_node_pairs, m, links, route, percent)
+            performance, congested_link = calculate_performance(m, selected_node_pairs, tm, links, capacity, route, percent, utilization_optimal)
 
             if performance > max_performance:
                 max_performance = performance
@@ -265,7 +267,7 @@ def select_node_pairs(tm, utilization_optimal, links, route, percent, k):
             if (src, dst) in selected_node_pairs:
                 continue
             selected_node_pairs.append((src, dst))
-            performance, congested_link = calculate_performance(selected_node_pairs, m, links, route, percent)
+            performance, congested_link = calculate_performance(m, selected_node_pairs, tm, links, capacity, route, percent, utilization_optimal)
             selected_node_pairs.pop()
             #print "after select out ", (src + 1, dst + 1), " the performance:", performance
             #print   
@@ -278,7 +280,7 @@ def select_node_pairs(tm, utilization_optimal, links, route, percent, k):
 
     return selected_node_pairs
 
-def explicit_routing(tm, utilization_optimal):
+def explicit_routing(tm, links, capacity):
 
     '''
         this funciton is used to calculate the explicit_path
@@ -293,7 +295,17 @@ def explicit_routing(tm, utilization_optimal):
 
     '''
 
-    basic_tm = get_basic_tm(tm, len(tm), num_switch)
+    num_matrix = len(tm)
+    num_switch = len(tm[0])
+    num_link = len(links)
+    num_selected = 3
+
+    utilization_optimal = [0] * num_matrix
+
+    for t in range(num_matrix):
+        utilization_optimal[t], ignore = destination_based_routing(tm[t], links, capacity)
+   
+    basic_tm = get_basic_tm(tm, num_matrix, num_switch)
 
     MLU, allocation = destination_based_routing(basic_tm, links, capacity)
 
@@ -305,9 +317,9 @@ def explicit_routing(tm, utilization_optimal):
 
     route, percent = path_2_route(paths)
 
-    num_selected = 3
+    selected_node_pairs = select_node_pairs(tm, links, capacity, route, percent, utilization_optimal, num_selected)
 
-    selected_node_pairs = select_node_pairs(tm, utilization_optimal, links, route, percent, num_selected)
+    num_pair = len(selected_node_pairs)
 
     print "finally selected pairs: ", selected_node_pairs
 
@@ -315,10 +327,10 @@ def explicit_routing(tm, utilization_optimal):
         calculate the background_load
     '''
 
-    background_load = [{} for m in tm]
+    background_load = [{} for m in range(num_matrix)]
 
-    for m in tm:
-        background_load[m] = calculate_background_load(m, selected_node_pairs, links, route, percent)
+    for m in range(num_matrix):
+        background_load[m] = calculate_background_load(m, selected_node_pairs, tm, links, route, percent)
 
     '''
         use CPLEX to solve the linear programming problem to get 
@@ -334,13 +346,13 @@ def explicit_routing(tm, utilization_optimal):
 
     # sys.stdout is the default output stream for log and results
     # so these lines may be omitted
-    #prob.set_results_stream("/dev/null")
-    #prob.set_log_stream("/dev/null")
+    prob.set_results_stream("/dev/null")
+    prob.set_log_stream("/dev/null")
 
-    prob.set_results_stream(sys.stdout)
-    prob.set_log_stream(sys.stdout)
+    #prob.set_results_stream(sys.stdout)
+    #prob.set_log_stream(sys.stdout)
 
-    ic_handle = _buildmodel(prob, tm, links, capacity, selected_node_pairs, utilization_optimal, background_load)
+    ic_handle = _buildmodel(prob, selected_node_pairs, tm, links, capacity, utilization_optimal, background_load)
 
     #prob.write("explicitrouting.lp")
 
@@ -353,27 +365,23 @@ def explicit_routing(tm, utilization_optimal):
     print "Solution status = ", sol.status[sol.get_status()]
     print "Solution value = ", sol.get_objective_value()
 
-    num_link = len(links)
-    num_pair = len(selected_node_pairs)
-
     x = sol.get_values(0, num_link * num_pair)
 
     performance = x[num_link * num_pair]
 
-    allocation = [[0 for col in range(num_link)]for row in range(num_pair)]
+    explicit_allocation = [[0 for col in range(num_link)]for row in range(num_pair)]
 
     for p in range(num_pair):
         for l in range(num_link):
-            allocation[p][l] = float(x[p * num_link + l])
+            explicit_allocation[p][l] = float(x[p * num_link + l])
 
-    return performance, allocation, selected_node_pairs
+    return performance, explicit_allocation, selected_node_pairs
 
 def search_path(p, src, tmp_next_node, tmp_path, tmp_percent, fraction, links, paths):
 
     '''
         deep first search for the path from a switch to another
     '''
-
 
     for l in links:
         (node, next_node) = links[l]
@@ -395,9 +403,6 @@ def search_path(p, src, tmp_next_node, tmp_path, tmp_percent, fraction, links, p
             tmp_path = prev_path
             tmp_percent = prev_percent
 
-
-
-
 if __name__ == "__main__":
 
     num_matrix = 288
@@ -406,16 +411,11 @@ if __name__ == "__main__":
 
     tm = read_traffic(usr_home + "/dhrpox/traffic/2014_06_24TM", num_matrix, num_switch)
 
-    utilization_optimal = [0] * num_matrix
-
-    for t in range(0, 1):
-        utilization_optimal[t], ignore = destination_based_routing(tm[t], links, capacity)
-   
     tm_tmp = {}
 
     tm_tmp[0] = tm[0] 
 
-    performance, allocation, selected_node_pairs = explicit_routing(tm_tmp, utilization_optimal)
+    performance, allocation, selected_node_pairs = explicit_routing(tm_tmp, links, capacity)
 
     num_pair = len(allocation)
     num_link = len(links)

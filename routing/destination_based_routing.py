@@ -13,11 +13,14 @@ from readtraffic import *
 
 import cplex
 
-def _buildmodel(prob, tm, links, capacity, num_link, num_switch):
+def _buildmodel(prob, tm, links, capacity):
 
     '''
         build the model for the destination based routing
     '''
+
+    num_link = len(links)
+    num_switch = len(tm)
  
     sufficiently_small_number = 0.000001
 
@@ -168,12 +171,12 @@ def destination_based_routing(tm, links, capacity):
 
     # sys.stdout is the default output stream for log and results
     # so these lines may be omitted
-    prob.set_results_stream(sys.stdout)
-    prob.set_log_stream(sys.stdout)
-    #prob.set_results_stream("/dev/null")
-    #prob.set_log_stream("/dev/null")
+    #prob.set_results_stream(sys.stdout)
+    #prob.set_log_stream(sys.stdout)
+    prob.set_results_stream("/dev/null")
+    prob.set_log_stream("/dev/null")
 
-    ic_handle = _buildmodel(prob, tm, links, capacity, num_link, num_switch)
+    ic_handle = _buildmodel(prob, tm, links, capacity)
 
     #prob.write("basicrouting.lp")
 
@@ -248,7 +251,7 @@ if __name__ == "__main__":
     paths = fraction_2_path(fraction, links)
 
     # write the final path to the abilene_path.txt
-    f = open(usr_home + "/dhrpox/path/abilene_path.txt","w+")
+    f = open(usr_home + "/dhrpox/topology/abilene_path.txt","w+")
     for src in range(num_switch):
         for dst in range(num_switch):
             if src == dst:
