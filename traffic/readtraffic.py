@@ -19,7 +19,7 @@ def read_traffic(filename, num_matrix, num_switch):
                 break
             traffic_matrix[num][src][dst] = int(float(data) / 3000.0)
             dst = dst + 1
-            if dst == 12:
+            if dst == num_switch:
                 src = src + 1
                 dst = 0
         num = num + 1
@@ -49,9 +49,6 @@ if __name__ == "__main__":
     num_switch = 12
 
     traffic_matrix = read_traffic(path, num_matrix, num_switch)
-
-    num_matrix = len(traffic_matrix)
-    num_switch = len(traffic_matrix[0])
 
     basic_traffic_matrix = get_basic_tm(traffic_matrix, num_matrix, num_switch)
 

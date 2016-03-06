@@ -8,6 +8,8 @@ sys.path.append(usr_home + "/dhrpox/routing")
 sys.path.append(usr_home + "/dhrpox/topology")
 sys.path.append(usr_home + "/dhrpox/traffic")
 
+from time import time
+
 from readlink import *
 from readtraffic import *
 from destination_based_routing import *
@@ -50,6 +52,8 @@ def traffic_matrix_clustering(traffic_matrix, links, capacity, p_threshold):
         (L is the number of total given traffic matrices)
     '''
 
+    start = time()
+
     num_matrix = len(traffic_matrix)
     num_cluster = num_matrix
 
@@ -74,7 +78,21 @@ def traffic_matrix_clustering(traffic_matrix, links, capacity, p_threshold):
                 continue
 
             cost[i][j] = calculate_merging_cost(cluster[i],cluster[j], links, capacity)
-            print "cost[i][j] = ", cost[i][j]
+
+            print "the performance of merging cluster %d and %d : %f" % (i, j, cost[i][j])
+
+            #print "cost[i][j] = ", cost[i][j]
+
+    print "Finish initial merging cost calculation"
+
+    print (time() - start)
+
+    f = open("/home/mininet/dhrpox/routing/cost","w+")
+    for i in cluster:
+        for j in cluster:
+            f.write("%d %d %f" % (i, j, cost[i][j]))
+            f.write("\n")
+    f.close()
 
     while num_cluster != 1:
 
@@ -94,9 +112,10 @@ def traffic_matrix_clustering(traffic_matrix, links, capacity, p_threshold):
                     min_cost = cost[i][j]
                     one = i
                     two = j
-        print "min_cost: ", min_cost
+        #print "min_cost: ", min_cost
 
         if min_cost > p_threshold:
+            print "min_cost : %s > p_threshold, clustering finish" % min_cost
             break
 
         else:        
@@ -119,7 +138,8 @@ def traffic_matrix_clustering(traffic_matrix, links, capacity, p_threshold):
                     continue
                 else:
                     cost[one][j] = calculate_merging_cost(\
-                                       cluster[one], cluster[j], links, capacity)
+                                   cluster[one], cluster[j], links, capacity)
+                    print "update cost %d,%d : %f" % (one, j, cost[one][j]) 
 
     clusters_after_clustering = {}
     num_cluster = 0
@@ -135,16 +155,21 @@ def traffic_matrix_clustering(traffic_matrix, links, capacity, p_threshold):
 
 if __name__ == "__main__":
 
-    num_matrix = 12
+    num_matrix = 288
 
     links, capacity, num_link, num_switch = read_link(usr_home + "/dhrpox/topology/abilene.txt")
 
     traffic_matrix = read_traffic(usr_home + "/dhrpox/traffic/2014_06_24_12TM", num_matrix, num_switch)
 
+    start = time()
+
     clusters = traffic_matrix_clustering(traffic_matrix, links, capacity, 1.05)
-   
-    print "cluster num : ", len(clusters)
-    
+  
+    now = time()
+ 
+    print 'All done in %0.2fs!' % (now - start)
+
+    print "cluster num : ", len(clusters) 
  
     f = open("/home/mininet/dhrpox/routing/clusters.txt","w+")
     for c in range(len(clusters)):
@@ -156,6 +181,6 @@ if __name__ == "__main__":
                      f.write(" ")
              f.write("\n")
          f.write("next cluster\n")
-    
+    f.close() 
          
      

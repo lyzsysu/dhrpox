@@ -298,7 +298,7 @@ def explicit_routing(tm, links, capacity):
     num_matrix = len(tm)
     num_switch = len(tm[0])
     num_link = len(links)
-    num_selected = 3
+    num_selected = 5
 
     utilization_optimal = [0] * num_matrix
 
@@ -309,7 +309,7 @@ def explicit_routing(tm, links, capacity):
 
     MLU, allocation = destination_based_routing(basic_tm, links, capacity)
 
-    print ("MLU by CPLEX : %f" % MLU)
+    #print ("MLU by CPLEX : %f" % MLU)
 
     fraction = allocation_2_fraction(allocation, links)
 
@@ -321,7 +321,7 @@ def explicit_routing(tm, links, capacity):
 
     num_pair = len(selected_node_pairs)
 
-    print "finally selected pairs: ", selected_node_pairs
+    #print "finally selected pairs: ", selected_node_pairs
 
     '''
         calculate the background_load
@@ -360,10 +360,10 @@ def explicit_routing(tm, links, capacity):
 
     sol = prob.solution
 
-    print 
+    #print 
     # solution.get_status() returns an integer code
-    print "Solution status = ", sol.status[sol.get_status()]
-    print "Solution value = ", sol.get_objective_value()
+    #print "Solution status = ", sol.status[sol.get_status()]
+    #print "Solution value = ", sol.get_objective_value()
 
     x = sol.get_values(0, num_link * num_pair)
 

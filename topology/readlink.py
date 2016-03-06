@@ -22,7 +22,7 @@ def read_link(filename):
             links[link_num - 1] = \
             (int(line.split(" ")[0]), int(line.split(" ")[1]))
             capacity[link_num - 1] = link_capacity * 10
-            # the unit of capacity is kbps
+            # the unit of capacity is Mbps
         line = f.readline()
     f.close()
     return links, capacity, num_link, num_switch
@@ -32,9 +32,6 @@ if __name__ == "__main__":
     path = os.path.realpath("../topology/abilene.txt")
 
     links, capacity, num_link, num_switch = read_link(path)
-
-    for l in capacity:
-        print capacity[l]
 
     for l in links:
         print links[l]
