@@ -61,9 +61,11 @@ if not os.path.isdir(OUTDIR):
 
 
 def start_traffic(net):
+
     """
     Start long-lived iperf flows for all the (src, dst) pairs in traffic_file.
     """
+
     with open(args.traffic, 'r') as f:
         traffic = json.load(f)
 
@@ -79,9 +81,9 @@ def start_traffic(net):
 
             port = IPERF_PORT_BASE + port_count
             server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
-            client = '%s -c %s -p %s -t %d -u -b 33M &' % (IPERF_PATH,
+            client = '%s -c %s -p %s -t %d -u -b %dM &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
-                                                 port, IPERF_SECONDS)
+                                                 port, IPERF_SECONDS, traffic[src_idx][dst_idx])
             dst.cmd(server)
             src.cmd(client)
             print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
@@ -89,10 +91,8 @@ def start_traffic(net):
                    dst.IP('%s-eth0' % dst_name), port)
             port_count += 1
 
-
 def avg(lst):
     return float(sum(lst)) / len(lst)
-
 
 def variance(lst):
     mean = avg(lst)
