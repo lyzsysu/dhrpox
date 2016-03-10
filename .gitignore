@@ -1,3 +1,5 @@
 build/*
 dist/*
 mininet_platform.egg-info/*
+*.pyc
+*.swp
