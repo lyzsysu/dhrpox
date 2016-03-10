@@ -1,67 +1,83 @@
 #!/usr/bin/python
+# Filename: readtraffic.py
 
 import sys
 import os
 
 def read_traffic(filename, num_matrix, num_switch):
 
-    traffic_matrix = [[[0.0 for col in range(num_switch)]for row in range(num_switch)]for row in range(num_matrix)]
+    """ read traffic matrix from filename
+        tm: list eg: tm[0][src][dst] = 100 """
+
+    tm = [[[0.0 for s in range(num_switch)] 
+                for d in range(num_switch)] 
+                for m in range(num_matrix)]
+
+    m = 0 # number of matrices
 
     f = open(filename)
     line = f.readline()
-
-    num = 0
     while line:
-        src = 0
-        dst = 0
-        for data in line.split(" "):
-            if data == "\n":
+        src = dst = 0
+        for demand in line.split(" "):
+            if demand == "\n":
                 break
-            traffic_matrix[num][src][dst] = int(float(data) / 3000.0)
-            dst = dst + 1
+            # demand is x * 100bytes in 5 minutes,
+            # so it has to divide 3000 to byte/sec
+            tm[m][src][dst] = float(demand) / 3000
+            dst += 1
             if dst == num_switch:
-                src = src + 1
+                src += 1
                 dst = 0
-        num = num + 1
+        m += 1
         line = f.readline()
     f.close()
 
-    return traffic_matrix
+    return tm
 
-def get_basic_tm(traffic_matrix, num_matrix, num_switch):
+def get_basic_tm(tms, num_switch):
 
-    basic_traffic_matrix = [[0.0 for col in range(num_switch)]for row in range(num_switch)]
-    
+    """ we choose maximum demand volume traffic matrix 
+        as the basic traffic matrix """
+
+    basic_traffic_matrix = [[0.0 for col in range(num_switch)]
+                                 for row in range(num_switch)]   
+
+    num_matrix = len(tms) 
+
     for s in range(num_switch):
         for d in range(num_switch):
-            max_traffic = 0
+            Max = 0
             for m in range(num_matrix):
-                max_traffic = max(max_traffic, traffic_matrix[m][s][d])
-            basic_traffic_matrix[s][d] = max_traffic 
+                Max = max(Max, tms[m][s][d])
+            basic_traffic_matrix[s][d] = Max
 
     return basic_traffic_matrix
 
-if __name__ == "__main__":
+def main():
 
-    path = os.path.expanduser('~') + "/dhrpox/traffic/2014_06_24_12TM"
-
-    num_matrix = 12
+    num_matrix = 288
     num_switch = 12
 
-    traffic_matrix = read_traffic(path, num_matrix, num_switch)
+    path = os.path.expanduser('~') + "/dhrpox/traffic/288TM"
 
-    basic_traffic_matrix = get_basic_tm(traffic_matrix, num_matrix, num_switch)
+    tm = read_traffic(path, num_matrix, num_switch)
 
-    # show all traffic matrixs
+    basic_traffic_matrix = get_basic_tm(tm, num_switch)
+
+    # show the sample of traffic matrices eg: tm[0]
     for m in range(0, 1):
         for s in range(num_switch):
             for d in range(num_switch):
-                print ("%d" % traffic_matrix[m][s][d]),
+                print ("%d" % tm[m][s][d]),
             print
         print
 
     # show the basic traffic matrix
-    #for s in range(num_switch):
-    #    for d in range(num_switch):
-    #        print ("%f " % basic_traffic_matrix[s][d]),
-    #    print
+    for s in range(num_switch):
+        for d in range(num_switch):
+            print ("%d " % basic_traffic_matrix[s][d]),
+        print
+
+if __name__ == "__main__":
+    main()
