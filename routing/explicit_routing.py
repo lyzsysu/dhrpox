@@ -337,7 +337,7 @@ def explicit_routing(tm, link, capacity, num_selected = 5):
 
     return performance, explicit_fraction, selected_node_pair
 
-if __name__ == "__main__":
+def main():
 
     num_matrix = 288
 
@@ -367,3 +367,7 @@ if __name__ == "__main__":
 
     for p in path:
         print p
+
+if __name__ == "__main__":
+    main()
+
