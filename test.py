@@ -16,13 +16,11 @@ def main():
     
     num_matrix = 288
 
-    link, capacity, num_switch, num_link = \
-    read_link("/home/mininet/dhrpox/topology/abilene.txt")
+    link_file = usr_home + "/dhrpox/topology/abilene.txt"
+    link, capacity, num_switch, num_link = read_link(link_file)
 
-    tm = read_traffic("/home/mininet/dhrpox/traffic/288TM", 
-                      num_matrix, num_switch)
-
-    print tm[0]
+    traffic_file = usr_home + "/dhrpox/traffic/288TM"
+    tm = read_traffic(traffic_file, num_matrix, num_switch)
 
     basic_tm = get_basic_tm(tm, num_switch)
 
@@ -30,7 +28,7 @@ def main():
 
     path = allocation_2_path(allocation, link, num_switch)
 
-    #print path
+    # print path
 
     ################################################################
 
@@ -40,8 +38,6 @@ def main():
 
     performance, explicit_fraction, selected_node_pair = \
     explicit_routing(tm_tmp, link, capacity)
-
-    num_pair = len(selected_node_pair)
 
     explicit_path = explicit_fraction_2_path(explicit_fraction,
                                     selected_node_pair, link)

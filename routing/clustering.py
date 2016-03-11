@@ -96,7 +96,7 @@ def clustering(traffic_matrix, link, capacity, p_threshold):
 
     print "use time: ", (time() - start), " secs."
 
-    f = open("/home/mininet/dhrpox/routing/cost_tmp","w+")
+    f = open("/home/mininet/dhrpox/routing/cost_v3.0.txt","w+")
     for i in cluster:
         for j in cluster:
             f.write("%d %d %f" % (i, j, cost[i][j]))
@@ -155,13 +155,13 @@ def clustering(traffic_matrix, link, capacity, p_threshold):
 
 if __name__ == "__main__":
 
-    num_matrix = 12
+    num_matrix = 288
 
-    link, capacity, num_switch, num_link = \
-    read_link("/home/mininet/dhrpox/topology/abilene.txt")
+    link_file = usr_home + "/dhrpox/topology/abilene.txt"
+    link, capacity, num_switch, num_link = read_link(link_file)
 
-    tm = read_traffic("/home/mininet/dhrpox/traffic/12TM",
-                      num_matrix, num_switch)
+    traffic_file = usr_home + "/dhrpox/traffic/288TM"
+    tm = read_traffic(traffic_file, num_matrix, num_switch)
 
     start = time()
 
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
     print "cluster num : ", len(clusters) 
  
-    f = open("/home/mininet/dhrpox/routing/try_clusters.txt","w+")
+    f = open("/home/mininet/dhrpox/routing/clusters_288TM.txt","w+")
     for c in range(len(clusters)):
         f.write("next cluster  \n")
         print "cluster %d" % c, "has %d" % len(clusters[c]), " matrices"
