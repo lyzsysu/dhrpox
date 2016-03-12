@@ -15,6 +15,7 @@ sys.path.append(usr_home + "/dhrpox/routing")
 from readlink import *
 from readtraffic import *
 from generate_routing_policies import *
+from readpath import *
 
 MAX = 10000
 
@@ -95,36 +96,7 @@ def main():
         destination_based_routing(tm[t], link, capacity)
 
     robust_path_file = (usr_home + "/dhrpox/routing/robust_path.txt")
-
-    robust_path = [[{} for col in range(num_switch)]
-                       for row in range(num_switch)]
-
-    # write down the robust_path in the file
-    f = open(robust_path_file)
-    line = f.readline()
-    while line:
-        if line.split(" ")[0] == "Paths":
-            src = int(line.split(" ")[2]) - 1
-            dst = int(line.split(" ")[4].split("\n")[0]) - 1
-        if line.split(" ")[0] == "Path":
-            route = line.split("     ")[1]
-            percent = line.split("     ")[2].split("%")[0]
-            count = line.split(" ")[1]
-
-            robust_path[src][dst][count] = {}
-            robust_path[src][dst][count]['route'] = route
-            robust_path[src][dst][count]['percent'] = percent
-        line = f.readline()
-    f.close()
-
-    # show the robust path result
-    # for src in range(num_switch):
-    #     for dst in range(num_switch):
-    #         if src == dst:
-    #             continue
-    #         for p in robust_path[src][dst]:
-    #             print (robust_path[src][dst][p]['route'],
-    #                    robust_path[src][dst][p]['percent'])
+    robust_path = read_robust_path(robust_path_file, num_switch)
 
     cluster_file = (usr_home + "/dhrpox/routing/clusters_288TM_k_5_p_1.05.txt")
     cluster = read_cluster(cluster_file, num_switch)
@@ -132,41 +104,7 @@ def main():
     num_cluster = len(cluster)
 
     dhr_path_file = (usr_home + "/dhrpox/routing/dhr_path.txt")
-
-    dhr_path = [[[{} for col in range(num_switch)]
-                     for row in range(num_switch)]
-                     for c in range(num_cluster)]
-
-    # write down the dhr path in the file
-    f = open(dhr_path_file)
-    line = f.readline()
-    while line:
-        if line.split(" ")[0] == "Cluster":
-            c = int(line.split(" ")[1].split(":")[0]) - 1
-        if line.split(" ")[0] == "Paths":
-            src = int(line.split(" ")[2]) - 1
-            dst = int(line.split(" ")[4].split("\n")[0]) - 1
-        if line.split(" ")[0] == "Path":
-            route = line.split("     ")[1]
-            percent = line.split("     ")[2].split("%")[0]
-            count = line.split(" ")[1]
-
-            dhr_path[c][src][dst][count] = {}
-            dhr_path[c][src][dst][count]['route'] = route
-            dhr_path[c][src][dst][count]['percent'] = percent
-        line = f.readline()
-
-    # show the dhr path result
-    # for c in range(num_cluster):
-    #     print "cluster %d " % c
-    #     for src in range(num_switch):
-    #         for dst in range(num_switch):
-    #             if src == dst:
-    #                 continue
-    #             for p in dhr_path[c][src][dst]:
-    #                 print (dhr_path[c][src][dst][p]['route'],
-    #                        dhr_path[c][src][dst][p]['percent'])
-
+    dhr_path = read_dhr_path(dhr_path_file, num_switch, num_cluster)
 
     # for every matrix in traffic matrix list
     # calculate the robust_performance and the dhr_performance
