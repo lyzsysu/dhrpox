@@ -57,22 +57,23 @@ if __name__ == "__main__":
 
     num_switch = 12
 
-    cluster_file = usr_home + "/dhrpox/routing/clusters.txt"
+    cluster_file = usr_home + "/dhrpox/routing/clusters_288TM_k_5_p_1.05.txt"
 
     cluster = read_cluster(cluster_file, num_switch)
 
     num_cluster = len(cluster)
+    print "num_cluster is :", num_cluster
 
     link_file = usr_home + "/dhrpox/topology/abilene.txt"
 
     link, capacity, num_switch, num_link = read_link(link_file)
 
-    output_file = usr_home + "/dhrpox/results/abilene_paths.txt"
+    output_file = usr_home + "/dhrpox/routing/dhr_path.txt"
 
     f = open(output_file,"w+")
 
     for c in range(num_cluster):
-        f.write("The pahts for cluster %d: \n" % (c + 1))
+        f.write("Cluster %d: \n" % (c + 1))
         basic_traffic_matrix = get_basic_tm(cluster[c], num_switch)
 
         mlu, allocation = destination_based_routing(basic_traffic_matrix, 

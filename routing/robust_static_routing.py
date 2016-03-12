@@ -195,6 +195,7 @@ if __name__ == "__main__":
     performance, robust_fraction = \
     robust_static_routing(tm, link, capacity, opt_utilization)
 
+    print "performance: ", performance
 
     num_pair = (num_switch) * (num_switch - 1)
 

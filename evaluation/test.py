@@ -1,3 +1,8 @@
+#!/usr/bin/python
+# Filename: test.py
+
+""" test the functions of basic routing and explicit routing """
+
 import os
 usr_home = os.path.expanduser('~')
 
