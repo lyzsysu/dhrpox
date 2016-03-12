@@ -1,9 +1,13 @@
 #!/usr/bin/python
-'''@package abilenetopo
+# Filename: abilene.py
+
+"""
+
+@package abilenetopo
 
 Abilene topology creation and drawing.
 
-'''
+"""
 
 import os
 usr_home = os.path.expanduser('~')
@@ -17,13 +21,13 @@ from mininet.link import TCLink
 from readlink import read_link
 
 class NodeID(object):
-    '''Topo node identifier.'''
+    """ Topo node identifier. """
 
     def __init__(self, dpid = None):
-        '''Init.
+        """ Init.
 
         @param dpid dpid
-        '''
+        """
         # DPID-compatible hashable identifier: opaque 64-bit unsigned int
         self.dpid = dpid
 
@@ -95,10 +99,10 @@ class AbileneTopo(Topo):
             return True 
 
     def def_nopts(self, name = None):
-        '''return default dict for my topo
+        """ return default dict for my topo
 
         @param name name of node
-        '''
+        """
         d = {}
         if name:
             id = self.id_gen(name = name)
@@ -107,8 +111,8 @@ class AbileneTopo(Topo):
             #host ==1 means it is switch,
             #for hosts only, set the IP
             if host != 1:
-              d.update({'ip': id.ip_str()})
-              d.update({'mac': id.mac_str()})
+                d.update({'ip': id.ip_str()})
+                d.update({'mac': id.mac_str()})
             d.update({'dpid': "%016x" % id.dpid})
         return d
 
@@ -121,30 +125,32 @@ class AbileneTopo(Topo):
         nodes = [n for n in self.g[name] if self.id_gen(name = n).is_switch()]
         return nodes
 
-    def __init__( self ):
+    def __init__( self, num_host = 2):
         
         Topo.__init__( self )
         
         self.id_gen = AbileneTopo.AbileneNode
 
-        path = os.path.expanduser('~') + "/dhrpox/topology/abilene.txt"
-
-        links, capacity, num_link, num_switch = read_link(path)
+        link_file = usr_home + "/dhrpox/topology/abilene.txt"
+        link, capacity, num_switch, num_link = read_link(link_file)
 
         for e in range(1, num_switch + 1):
             sw_id = self.id_gen(e, 1).name_str()
             sw_opts = self.def_nopts(sw_id)
             self.add_switch(sw_id, **sw_opts)
 
-            for h in range(2, 4):
-                host_id = self.id_gen(e,h).name_str()
+            for h in range(2, num_host + 2):
+                host_id = self.id_gen(e, h).name_str()
                 host_opts = self.def_nopts(host_id)
                 self.add_host(host_id, **host_opts)
                 self.add_link(host_id, sw_id)
      
-        for l in links:
-
-            (first, second) = links[l]
+        for l in range(num_link):
+            (first, second) = link[l]
+            first += 1 # because link save from 0~11
+            second += 1 # turn them into 1~12
             if first > second:
                 continue
-            self.add_link(str(first) + "_1", str(second) + "_1", bw = capacity[l] / 10)
+            self.add_link(str(first) + "_1", 
+                          str(second) + "_1", 
+                          bw = capacity[l] / 10)

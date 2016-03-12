@@ -1,9 +1,13 @@
 #!/usr/bin/python
-'''@package asymmetrictopo
+# Filename: asymetry.py
+
+"""
+
+@package asymmetrictopo
 
 Asymmetric topology creation and drawing.
 
-'''
+"""
 
 import os
 usr_home = os.path.expanduser('~')
@@ -17,13 +21,13 @@ from mininet.link import TCLink
 from readlink import read_link
 
 class NodeID(object):
-    '''Topo node identifier.'''
+    """ Topo node identifier. """
 
     def __init__(self, dpid = None):
-        '''Init.
+        """ Init.
 
         @param dpid dpid
-        '''
+        """
         # DPID-compatible hashable identifier: opaque 64-bit unsigned int
         self.dpid = dpid
 
@@ -95,10 +99,10 @@ class AsymmetricTopo(Topo):
             return True 
 
     def def_nopts(self, name = None):
-        '''return default dict for my topo
+        """ return default dict for my topo
 
         @param name name of node
-        '''
+        """
         d = {}
         if name:
             id = self.id_gen(name = name)
@@ -127,24 +131,26 @@ class AsymmetricTopo(Topo):
         
         self.id_gen = AsymmetricTopo.Node
 
-        path = os.path.expanduser('~') + "/dhrpox/topology/" + toponame + ".txt"
-
-
-        links, capacity, num_link, num_switch = read_link(path)
+        link_file = usr_home + "/dhrpox/topology/" + toponame + ".txt"
+        link, capacity, num_switch, num_link = read_link(link_file)
 
         for e in range(1, num_switch + 1):
             sw_id = self.id_gen(e, 1).name_str()
             sw_opts = self.def_nopts(sw_id)
             self.add_switch(sw_id, **sw_opts)
 
-            for h in range(2, 2 + num_host):
-                host_id = self.id_gen(e,h).name_str()
+            for h in range(2, num_host + 2):
+                host_id = self.id_gen(e, h).name_str()
                 host_opts = self.def_nopts(host_id)
                 self.add_host(host_id, **host_opts)
                 self.add_link(host_id, sw_id)
      
-        for l in links:
-            (first, second) = links[l]
+        for l in link:
+            (first, second) = link[l]
+            first += 1 # because link save from 0~11
+            second += 1 # turn them into 1~12
             if first > second:
                 continue
-            self.add_link(str(first) + "_1", str(second) + "_1", bw = capacity[l] / 10)
+            self.add_link(str(first) + "_1", 
+                          str(second) + "_1",
+                          bw = capacity[l] / 10)
