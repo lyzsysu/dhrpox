@@ -19,7 +19,7 @@ from time import time
 
 MAX = 100000000
 
-def calculate_merging_cost(cluster_a, cluster_b, link, capacity):
+def calculate_merging_cost(cluster_a, cluster_b, link, capacity, num_pair):
 
     """ merge cluster_b into cluster_a, and return the performance 
         after merging """
@@ -41,7 +41,7 @@ def calculate_merging_cost(cluster_a, cluster_b, link, capacity):
         num = num + 1
 
     performance, ignore1, ignore2 = explicit_routing(traffic_matrix, 
-                                                     link, capacity)
+                                                     link, capacity, num_pair)
 
     return performance
 
@@ -54,7 +54,7 @@ def insert_traffic_matrices(cluster_a, cluster_b):
 
     return cluster_a
 
-def clustering(traffic_matrix, link, capacity, p_threshold):
+def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
     
     """ do the clustering by input all the tm """
 
@@ -85,7 +85,7 @@ def clustering(traffic_matrix, link, capacity, p_threshold):
             if i == j:
                 continue
             cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
-                                                link, capacity)
+                                                link, capacity, num_pair)
 
             print ("the performance of merging cluster %d and %d : %f"
                    % (i, j, cost[i][j]))
@@ -96,9 +96,9 @@ def clustering(traffic_matrix, link, capacity, p_threshold):
 
     print "use time: ", (time() - start), " secs."
 
-    f = open("/home/mininet/dhrpox/routing/cost_v3.0.txt","w+")
-    for i in cluster:
-        for j in cluster:
+    f = open("/home/mininet/dhrpox/routing/cost_v3.0_1.05_35.txt","w+")
+    for i in range(num_cluster):
+        for j in range(num_cluster):
             f.write("%d %d %f" % (i, j, cost[i][j]))
             f.write("\n")
     f.close()
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
     start = time()
 
-    clusters = clustering(tm, link, capacity, 1.05)
+    clusters = clustering(tm, link, capacity, 1.05, 35)
   
     now = time()
  
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
     print "cluster num : ", len(clusters) 
  
-    f = open("/home/mininet/dhrpox/routing/clusters_288TM.txt","w+")
+    f = open("/home/mininet/dhrpox/routing/clusters_288TM_1.05_35.txt","w+")
     for c in range(len(clusters)):
         f.write("next cluster  \n")
         print "cluster %d" % c, "has %d" % len(clusters[c]), " matrices"

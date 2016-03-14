@@ -74,10 +74,10 @@ def main():
         print
 
     # show the basic traffic matrix
-    for s in range(num_switch):
-        for d in range(num_switch):
-            print ("%d " % basic_traffic_matrix[s][d]),
-        print
+    # for s in range(num_switch):
+    #     for d in range(num_switch):
+    #         print ("%d " % basic_traffic_matrix[s][d]),
+    #     print
 
 if __name__ == "__main__":
     main()

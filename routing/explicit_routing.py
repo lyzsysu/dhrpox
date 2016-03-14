@@ -245,7 +245,7 @@ def select_node_pairs(tm, link, capacity, path, opt_utilization, k):
 
     return selected_node_pair
 
-def explicit_routing(tm, link, capacity, num_selected = 5):
+def explicit_routing(tm, link, capacity, num_selected = 35):
 
     """ this funciton is used to calculate the explicit_path
 

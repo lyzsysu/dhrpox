@@ -13,6 +13,7 @@ from basic_routing import *
 from explicit_routing import *
 from util import *
 from readcost import *
+from readtraffic import *
 
 def read_cluster(filename, num_switch):
 
@@ -55,31 +56,41 @@ def read_cluster(filename, num_switch):
 
 if __name__ == "__main__":
 
-    num_switch = 12
+    num_matrix = 288
+
+    link_file = usr_home + "/dhrpox/topology/abilene.txt"
+    link, capacity, num_switch, num_link = read_link(link_file)
 
     cluster_file = usr_home + "/dhrpox/routing/clusters_288TM_k_5_p_1.05.txt"
-
     cluster = read_cluster(cluster_file, num_switch)
 
     num_cluster = len(cluster)
     print "num_cluster is :", num_cluster
 
-    link_file = usr_home + "/dhrpox/topology/abilene.txt"
-
-    link, capacity, num_switch, num_link = read_link(link_file)
-
-    output_file = usr_home + "/dhrpox/routing/dhr_path.txt"
+    output_file = usr_home + "/dhrpox/routing/dhr2_path.txt"
 
     f = open(output_file,"w+")
 
+    #traffic_file = usr_home + "/dhrpox/traffic/288TM"
+    #tm = read_traffic(traffic_file, num_matrix, num_switch)
+
+    #basic_traffic_matrix = get_basic_tm(tm, num_switch)
+
+    #mlu, allocation = destination_based_routing(basic_traffic_matrix, 
+    #                                            link, capacity)
+        
+    #path = allocation_2_path(allocation, link, num_switch)
+
     for c in range(num_cluster):
         f.write("Cluster %d: \n" % (c + 1))
+
         basic_traffic_matrix = get_basic_tm(cluster[c], num_switch)
 
-        mlu, allocation = destination_based_routing(basic_traffic_matrix, 
+        mlu, allocation = destination_based_routing(basic_traffic_matrix,
                                                     link, capacity)
-        
+
         path = allocation_2_path(allocation, link, num_switch)
+
 
         performance, explicit_fraction, selected_node_pair = \
         explicit_routing(cluster[c], link, capacity)

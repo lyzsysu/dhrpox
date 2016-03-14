@@ -38,11 +38,11 @@ IPERF_PORT = 5001
 IPERF_PORT_BASE = 5001
 IPERF_SECONDS = 3600
 
-OUTDIR = 'results/abilene'
+OUTDIR = 'results'
 
-HOST_NAMES = ('1_2', '1_3', '2_2', '2_3', '3_2', '3_3', '4_2', '4_3',
-              '5_2', '5_3', '6_2', '6_3', '7_2', '7_3', '8_2', '8_3',
-              '9_2', '9_3', '10_2', '10_3', '11_2', '11_3', '12_2', '12_3')
+HOST_NAMES = ('1_2', '2_2', '3_2', '4_2',
+              '5_2', '6_2', '7_2', '8_2',
+              '9_2', '10_2', '11_2', '12_2')
 
 lg.setLogLevel('info')
 
@@ -131,18 +131,20 @@ def sample_rxbytes(net, rxbytes):
 3_1_3-eth0: 33714765732 1133072    0    0    0     0          0         0 25308223734 1110457    0    0    0     0       0          0
     """
     for name in HOST_NAMES:
+        # print name
         host = net.get(name)
         iface = '%s-eth0:' % name
         bytes = None
 
+        now = time()
         res = host.cmd('cat /proc/net/dev')
+        # print (time() - now)
         lines = res.split('\n')
         for line in lines:
             if iface in line:
                 bytes = int(line.split()[1])
                 rxbytes[name].append(bytes)
                 break
-
         if bytes is None:
             lg.error('Couldn\'t parse rxbytes for host %s!\n' % name)
 
@@ -207,7 +209,7 @@ def main(args):
 
     sleep(5)
 
-    CLI(net)
+    # CLI(net)
 
     #print 'Generating the traffic pattern in "%s"...' % args.traffic
     start_traffic(net)
@@ -225,7 +227,6 @@ def main(args):
         sample_durations.append(time() - now)
         now = time()
         sample_rxbytes(net, rxbytes)
-        sleep(1.0)
 
     (agg_mean, agg_var) = aggregate_statistics(rxbytes, sample_durations)
     agg_stddev = sqrt(agg_var)

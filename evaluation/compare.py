@@ -106,6 +106,12 @@ def main():
     dhr_path_file = (usr_home + "/dhrpox/routing/dhr_path.txt")
     dhr_path = read_dhr_path(dhr_path_file, num_switch, num_cluster)
 
+    dhr2_path_file = (usr_home + "/dhrpox/routing/dhr2_path.txt")
+    dhr2_path = read_dhr_path(dhr2_path_file, num_switch, num_cluster)
+
+    compare_result_file = usr_home + "/dhrpox/evaluation/compare_result"
+    f = open(compare_result_file,"w+")
+
     # for every matrix in traffic matrix list
     # calculate the robust_performance and the dhr_performance
     # and compare them
@@ -126,7 +132,26 @@ def main():
             if performance < dhr_performance:
                 dhr_performance = performance
 
-        print "robust %f VS %f dhr" % (robust_performance, dhr_performance)
+        # if i calculate the basic path based on cluster, not on all the tm(288)
+        # then i may get another result, but it may have bad things when
+        # put into the real switch
+        # for we have to change all the flow table when we change policy
+        dhr2_performance = MAX
+        for c in range(num_cluster):
+            performance = calculate_performance(tm[m], m, dhr2_path[c],
+                                                link, capacity,
+                                                optimal_utilization,
+                                                num_switch)
+            if performance < dhr2_performance:
+                dhr2_performance = performance
+
+        f.write("robust %f VS dhr %f VS dhr2 %f\n" % (robust_performance,
+                                                     dhr_performance,
+                                                     dhr2_performance))
+        print "robust %f VS dhr %f VS dhr2 %f" % (robust_performance,
+                                                 dhr_performance,
+                                                 dhr2_performance)
+    f.close()
 
 if __name__ == "__main__":
     main()
