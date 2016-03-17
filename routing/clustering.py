@@ -80,28 +80,37 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
     cost = [[0.0 for col in range(num_cluster)]
                  for row in range(num_cluster)]
 
-    for i in cluster:
-        for j in cluster:
-            if i == j:
-                continue
-            cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
-                                                link, capacity, num_pair)
+    f = open("/home/mininet/dhrpox/routing/cost_v3.0_1.05_35.txt")
+    line = f.readline()
+    while line:
+        i = int(line.split(' ')[0])
+        j = int(line.split(' ')[1])
+        cost[i][j] = float(line.split(' ')[2])
+        line = f.readline()
+    f.close()
 
-            print ("the performance of merging cluster %d and %d : %f"
-                   % (i, j, cost[i][j]))
+    #for i in cluster:
+    #    for j in cluster:
+    #        if i == j:
+    #            continue
+            #cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
+            #                                    link, capacity, num_pair)
+
+    #        print ("the performance of merging cluster %d and %d : %f"
+    #               % (i, j, cost[i][j]))
 
             # print "cost[i][j] = ", cost[i][j]
 
-    print "Finish initial merging cost calculation"
+    #print "Finish initial merging cost calculation"
 
-    print "use time: ", (time() - start), " secs."
+    #print "use time: ", (time() - start), " secs."
 
-    f = open("/home/mininet/dhrpox/routing/cost_v3.0_1.05_35.txt","w+")
-    for i in range(num_cluster):
-        for j in range(num_cluster):
-            f.write("%d %d %f" % (i, j, cost[i][j]))
-            f.write("\n")
-    f.close()
+    #f = open("/home/mininet/dhrpox/routing/cost_v3.0_1.05_35.txt","w+")
+    #for i in range(num_cluster):
+    #    for j in range(num_cluster):
+    #        f.write("%d %d %f" % (i, j, cost[i][j]))
+    #        f.write("\n")
+    #f.close()
 
     while num_cluster != 1:
         #  Find the pair of clusters Ci and Cj with minimum costi, j.
@@ -138,7 +147,7 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
                 else:
                     cost[selected_a][j] = \
                     calculate_merging_cost(cluster[selected_a], 
-                                           cluster[j], link, capacity)
+                                           cluster[j], link, capacity, num_pair)
                     print "update cost %d,%d : %f" % (selected_a, j,
                                                       cost[selected_a][j]) 
 
