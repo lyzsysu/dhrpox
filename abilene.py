@@ -47,7 +47,7 @@ HOST_NAMES = ('1_2', '2_2', '3_2', '4_2',
 lg.setLogLevel('info')
 
 parser = ArgumentParser(description='Producing DHR results')
-parser.add_argument('algorithm', type=str, choices=('dhr'),
+parser.add_argument('algorithm', type=str, choices=('dhr','robust'),
                     help='Routing algorithm for saving results')
 parser.add_argument('traffic', type=str,
                     help='Traffic JSON file created by traffic.py to use')
@@ -227,6 +227,7 @@ def main(args):
         sample_durations.append(time() - now)
         now = time()
         sample_rxbytes(net, rxbytes)
+        sleep(1)
 
     (agg_mean, agg_var) = aggregate_statistics(rxbytes, sample_durations)
     agg_stddev = sqrt(agg_var)
