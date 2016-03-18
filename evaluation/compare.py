@@ -98,18 +98,15 @@ def main():
     robust_path_file = (usr_home + "/dhrpox/routing/robust_path.txt")
     robust_path = read_robust_path(robust_path_file, num_switch)
 
-    cluster_file = (usr_home + "/dhrpox/routing/clusters_288TM_k_5_p_1.05.txt")
+    cluster_file = (usr_home + "/dhrpox/routing/clusters_288TM_1.05_35.txt")
     cluster = read_cluster(cluster_file, num_switch)
 
     num_cluster = len(cluster)
 
-    dhr_path_file = (usr_home + "/dhrpox/routing/dhr_path.txt")
+    dhr_path_file = (usr_home + "/dhrpox/routing/dhr_path_1.05_35.txt")
     dhr_path = read_dhr_path(dhr_path_file, num_switch, num_cluster)
 
-    dhr2_path_file = (usr_home + "/dhrpox/routing/dhr2_path.txt")
-    dhr2_path = read_dhr_path(dhr2_path_file, num_switch, num_cluster)
-
-    compare_result_file = usr_home + "/dhrpox/evaluation/compare_result"
+    compare_result_file = usr_home + "/dhrpox/evaluation/compare_result_1.05_35"
     f = open(compare_result_file,"w+")
 
     # for every matrix in traffic matrix list
@@ -132,25 +129,11 @@ def main():
             if performance < dhr_performance:
                 dhr_performance = performance
 
-        # if i calculate the basic path based on cluster, not on all the tm(288)
-        # then i may get another result, but it may have bad things when
-        # put into the real switch
-        # for we have to change all the flow table when we change policy
-        dhr2_performance = MAX
-        for c in range(num_cluster):
-            performance = calculate_performance(tm[m], m, dhr2_path[c],
-                                                link, capacity,
-                                                optimal_utilization,
-                                                num_switch)
-            if performance < dhr2_performance:
-                dhr2_performance = performance
+        f.write("robust %f VS dhr %f \n" % (robust_performance,
+                                            dhr_performance))
 
-        f.write("robust %f VS dhr %f VS dhr2 %f\n" % (robust_performance,
-                                                     dhr_performance,
-                                                     dhr2_performance))
-        print "robust %f VS dhr %f VS dhr2 %f" % (robust_performance,
-                                                 dhr_performance,
-                                                 dhr2_performance)
+        print "robust %f VS dhr %f" % (robust_performance,
+                                       dhr_performance)
     f.close()
 
 if __name__ == "__main__":

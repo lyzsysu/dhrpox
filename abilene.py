@@ -53,24 +53,22 @@ parser.add_argument('traffic', type=str,
                     help='Traffic JSON file created by traffic.py to use')
 args = parser.parse_args()
 
-if not os.path.isfile(args.traffic):
-    raise Exception('Traffic file "%s" does not exist!' % args.traffic)
+if not os.path.isfile("traffic/" + args.traffic):
+    raise Exception('Traffic file "traffic/%s" does not exist!' % args.traffic)
 
 if not os.path.isdir(OUTDIR):
     raise Exception('Output directory "%s" does not exist!' % OUTDIR)
 
-
-def start_traffic(net):
+def start_traffic(net, port_count):
 
     """
     Start long-lived iperf flows for all the (src, dst) pairs in traffic_file.
     """
 
-    with open(args.traffic, 'r') as f:
+    with open(("traffic/" + args.traffic), 'r') as f:
         traffic = json.load(f)
 
     # Start every flow on its own port
-    port_count = 0
     for src_idx in traffic:
         src_name = HOST_NAMES[int(src_idx)]
         src = net.get(src_name)
@@ -83,7 +81,8 @@ def start_traffic(net):
             server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
             client = '%s -c %s -p %s -t %d -u -b %dM &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
-                                                 port, IPERF_SECONDS, traffic[src_idx][dst_idx])
+                                                 port, IPERF_SECONDS,
+                                                 traffic[src_idx][dst_idx] / 10)
             dst.cmd(server)
             src.cmd(client)
             print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
@@ -212,7 +211,11 @@ def main(args):
     # CLI(net)
 
     #print 'Generating the traffic pattern in "%s"...' % args.traffic
-    start_traffic(net)
+    port_count = 0
+    for i in range(10):
+        start_traffic(net, port_count)
+        port_count += 1
+        sleep(1)
 
     # Sample the cumulative # of bytes received for each host, every second.
     # The diff between adjacent samples gives us throughput for that second.
