@@ -80,7 +80,8 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
     cost = [[0.0 for col in range(num_cluster)]
                  for row in range(num_cluster)]
 
-    f = open("/home/mininet/dhrpox/routing/cost_v3.0_1.05_35.txt")
+    f = open("/home/mininet/dhrpox/routing/cost_" + str(num_matrix) + \
+             "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt")
     line = f.readline()
     while line:
         i = int(line.split(' ')[0])
@@ -93,19 +94,20 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
     #    for j in cluster:
     #        if i == j:
     #            continue
-            #cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
-            #                                    link, capacity, num_pair)
-
+    #        cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
+    #                                            link, capacity, num_pair)
+    #
     #        print ("the performance of merging cluster %d and %d : %f"
     #               % (i, j, cost[i][j]))
 
-            # print "cost[i][j] = ", cost[i][j]
+            # print "cost[%d][%d] = %f" % (i, j, cost[i][j])
 
     #print "Finish initial merging cost calculation"
 
     #print "use time: ", (time() - start), " secs."
 
-    #f = open("/home/mininet/dhrpox/routing/cost_v3.0_1.05_35.txt","w+")
+    #f = open("/home/mininet/dhrpox/routing/cost_" + str(num_matrix) + \
+    #         "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt","w+")
     #for i in range(num_cluster):
     #    for j in range(num_cluster):
     #        f.write("%d %d %f" % (i, j, cost[i][j]))
@@ -121,6 +123,7 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
             for j in cluster:
                 if i == j:
                     continue
+                # print "cost[%d][%d] : %f" % (i, j, cost[i][j])
                 if cost[i][j] < min_cost:
                     min_cost = cost[i][j]
                     selected_a = i
@@ -135,6 +138,7 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
             # Insert all traffic matrices belonging to Cj into Ci, 
             # and then remove Cj. 
             # CN = CN - 1.
+            print "merge %d into %d" % (selected_b, selected_a)
             insert_traffic_matrices(cluster[selected_a], cluster[selected_b])
             cluster.pop(selected_b)
             num_cluster = num_cluster - 1
@@ -148,6 +152,7 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
                     cost[selected_a][j] = \
                     calculate_merging_cost(cluster[selected_a], 
                                            cluster[j], link, capacity, num_pair)
+                    cost[j][selected_a] = cost[selected_a][j]
                     print "update cost %d,%d : %f" % (selected_a, j,
                                                       cost[selected_a][j]) 
 
@@ -162,14 +167,16 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
 
     return clusters_after_clustering
 
-if __name__ == "__main__":
-
-    num_matrix = 288
+def main(argv):
+    
+    num_matrix = int(argv[1])
+    p_threshold = float(argv[2])
+    num_pair = int(argv[3])
 
     link_file = usr_home + "/dhrpox/topology/abilene.txt"
     link, capacity, num_switch, num_link = read_link(link_file)
 
-    traffic_file = usr_home + "/dhrpox/traffic/288TM"
+    traffic_file = usr_home + "/dhrpox/traffic/" + str(num_matrix) + "TM"
     tm = read_traffic(traffic_file, num_matrix, num_switch)
 
     start = time()
@@ -182,7 +189,8 @@ if __name__ == "__main__":
 
     print "cluster num : ", len(clusters) 
  
-    f = open("/home/mininet/dhrpox/routing/clusters_288TM_1.05_35.txt","w+")
+    f = open("/home/mininet/dhrpox/routing/clusters_" + str(num_matrix) + \
+             "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt","w+")
     for c in range(len(clusters)):
         f.write("next cluster  \n")
         print "cluster %d" % c, "has %d" % len(clusters[c]), " matrices"
@@ -194,5 +202,9 @@ if __name__ == "__main__":
                     f.write(" ")
                 f.write("\n")
     f.close() 
-         
-     
+        
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        print ("you should input 'python clustering.py num_matrix" + 
+               "p_threshold selected_node_pair")
+    main(sys.argv)

@@ -209,12 +209,12 @@ def select_node_pairs(tm, link, capacity, path, opt_utilization, k):
             performance, congested_link = \
             calculate_performance(m, selected_node_pair, tm, link, 
                                   capacity, path, opt_utilization)
-
+            #print performance ,
             if performance > max_performance:
                 max_performance = performance
                 most_congested_link = congested_link
                 most_congested_matrix = m
-
+ 
         # for (src, dst) in selected_node_pair:
         #     print (src + 1, dst + 1)
         # print ("the perf is: ", performance, 
@@ -230,8 +230,8 @@ def select_node_pairs(tm, link, capacity, path, opt_utilization, k):
                 continue
             selected_node_pair.append((src, dst))
             performance, congested_link = \
-            calculate_performance(m, selected_node_pair, tm, link, capacity, 
-                                  path, opt_utilization)
+            calculate_performance(most_congested_matrix, selected_node_pair,
+                                  tm, link, capacity, path, opt_utilization)
             selected_node_pair.pop()
             # print ("after select out ", (src + 1, dst + 1), 
             #        " the performance:", performance)
@@ -239,7 +239,7 @@ def select_node_pairs(tm, link, capacity, path, opt_utilization, k):
  
             if performance < min_performance:
                 min_performance = performance
-                next_selected_node_pair = (src, dst) 
+                next_selected_node_pair = (src, dst)
 
         selected_node_pair.append(next_selected_node_pair)
 
