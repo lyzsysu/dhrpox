@@ -45,7 +45,7 @@ from readpath import *
 from pox.openflow.of_json import *
 
 log = core.getLogger()
-#log.setLevel(logging.WARNING)
+log.setLevel(logging.WARNING)
 
 # Number of switches
 NUMSWITCH = 12
@@ -132,30 +132,36 @@ class DHRController(object):
             self._flood(event)
 
         else:
-            # log.info("here we handle a packet_proactive")
-            # log.info("src  = %s" % packet.src)
-            # log.info("dst  = %s" % packet.dst)
-
             self.macTable[packet.src] = (dpid, in_port)
             if packet.dst in self.macTable:
-                match = of.ofp_match.from_packet(packet)
 
-                out_dpid, final_out_port = self.macTable[packet.dst]
-                src = self.t.id_gen(dpid = event.dpid).sw
-                dst = self.t.id_gen(dpid = out_dpid).sw
-                src_dst_pair = (src << 4) + dst
-	        route = self._choose_path(self.routeTable[src_dst_pair], 
-                                          self.percentTable[src_dst_pair])
+                if isinstance(packet.next, ipv4):
+                    match = of.ofp_match.from_packet(packet)
+
+                    out_dpid, final_out_port = self.macTable[packet.dst]
+                    src = self.t.id_gen(dpid = event.dpid).sw
+                    dst = self.t.id_gen(dpid = out_dpid).sw
+                    src_dst_pair = (src << 4) + dst
+	            route = self._choose_path(self.routeTable[src_dst_pair], 
+                                              self.percentTable[src_dst_pair])
             
-                log.info("route : %s" % route)
-                for i, node in enumerate(route):
-                    node_dpid = self.t.id_gen(name = node).dpid
-                    if i < len(route) - 1:
-                        next_node = route[i + 1]
-                        out_port, next_in_port = self.t.port(node, next_node)
-                    else:
-                        out_port = final_out_port
-                    self.switches[node_dpid].install(out_port, match)
+                    log.info("route : %s" % route)
+                    for i, node in enumerate(route):
+                        node_dpid = self.t.id_gen(name = node).dpid
+                        if i < len(route) - 1:
+                            next_node = route[i + 1]
+                            out_port, next_in_port = self.t.port(node,
+                                                                 next_node)
+                        else:
+                            out_port = final_out_port
+                        self.switches[node_dpid].install(out_port, match)
+                # else: for arp icmp use the basic path
+                else:   
+                    log.info("here we handle a packet_proactive")
+                    log.info("src  = %s" % packet.src)
+                    log.info("dst  = %s" % packet.dst)
+            
+                
 
   def _handle_FlowStatsReceived (self, event):
       stats = flow_stats_to_list(event.stats)
@@ -257,6 +263,9 @@ class DHRController(object):
       log.info("all the paths have been saved in the routeTable")
       # next step is to put the route on the topology
 
+      #self._install_paths()
+      log.info("all basic paths set")
+
   def _install_paths(self):
 
       for src in range(1, NUMSWITCH + 1):
@@ -266,7 +275,6 @@ class DHRController(object):
                   host_src = str(src) + "_2"
                   host_dst = str(dst) + "_2"
 
-                  #TODO        
                   # Form OF match
                   match = of.ofp_match()
                   match.dl_src = EthAddr(self.t.id_gen(name = src)\
@@ -278,7 +286,6 @@ class DHRController(object):
                   route = \
                   self._choose_path(self.routeTable[src_dst_pair], 
                                     self.percentTable[src_dst_pair])
-                  log.info("route : %s" % route)
                   self._install_explicit_path(host_src, host_dst,
                                               route, match)
               else:
