@@ -157,7 +157,7 @@ def main():
     path = allocation_2_path(allocation, link, num_switch)
 
     # write the destination-based routing path to the basic_path.txt
-    f = open(usr_home + "/dhrpox/routing/basic_path.txt","w+")
+    f = open(usr_home + "/dhrpox/routing/path/basic_path.txt","w+")
     for src in range(num_switch):
         for dst in range(num_switch):
             if src == dst:

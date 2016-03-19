@@ -31,7 +31,7 @@ def main():
 
     num_cluster = 288
 
-    filename = usr_home + "/dhrpox/routing/cost"
+    filename = usr_home + "/dhrpox/routing/cost/cost"
 
     cost = read_cost(filename, num_cluster)
 

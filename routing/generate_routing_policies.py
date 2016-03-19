@@ -62,13 +62,14 @@ if __name__ == "__main__":
     link_file = usr_home + "/dhrpox/topology/abilene.txt"
     link, capacity, num_switch, num_link = read_link(link_file)
 
-    cluster_file = usr_home + "/dhrpox/routing/clusters_288TM_1.05_35.txt"
+    cluster_file = \
+    usr_home + "/dhrpox/routing/clusters/clusters_288TM_1.05_35.txt"
     cluster = read_cluster(cluster_file, num_switch)
 
     num_cluster = len(cluster)
     print "num_cluster is :", num_cluster
 
-    output_file = usr_home + "/dhrpox/routing/dhr_1.05_35_path.txt"
+    output_file = usr_home + "/dhrpox/routing/path/dhr_1.05_35_path.txt"
 
     f = open(output_file,"w+")
 

@@ -80,39 +80,43 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
     cost = [[0.0 for col in range(num_cluster)]
                  for row in range(num_cluster)]
 
-    f = open("/home/mininet/dhrpox/routing/cost_" + str(num_matrix) + \
-             "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt")
-    line = f.readline()
-    while line:
-        i = int(line.split(' ')[0])
-        j = int(line.split(' ')[1])
-        cost[i][j] = float(line.split(' ')[2])
-        line = f.readline()
-    f.close()
+    # read cost from cost file
 
-    #for i in cluster:
-    #    for j in cluster:
-    #        if i == j:
-    #            continue
-    #        cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
-    #                                            link, capacity, num_pair)
-    #
-    #        print ("the performance of merging cluster %d and %d : %f"
-    #               % (i, j, cost[i][j]))
+    #f = open(usr_home + "/dhrpox/routing/cost/cost_" + str(num_matrix) + \
+    #         "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt")
+    #line = f.readline()
+    #while line:
+    #    i = int(line.split(' ')[0])
+    #    j = int(line.split(' ')[1])
+    #    cost[i][j] = float(line.split(' ')[2])
+    #    line = f.readline()
+    #f.close()
+
+    # calculate cost and save them into cost file
+
+    for i in cluster:
+        for j in cluster:
+            if i == j:
+                continue
+            cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
+                                                link, capacity, num_pair)
+    
+            print ("the performance of merging cluster %d and %d : %f"
+                   % (i, j, cost[i][j]))
 
             # print "cost[%d][%d] = %f" % (i, j, cost[i][j])
 
-    #print "Finish initial merging cost calculation"
+    print "Finish initial merging cost calculation"
 
-    #print "use time: ", (time() - start), " secs."
+    print "use time: ", (time() - start), " secs."
 
-    #f = open("/home/mininet/dhrpox/routing/cost_" + str(num_matrix) + \
-    #         "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt","w+")
-    #for i in range(num_cluster):
-    #    for j in range(num_cluster):
-    #        f.write("%d %d %f" % (i, j, cost[i][j]))
-    #        f.write("\n")
-    #f.close()
+    f = open(usr_home + "/dhrpox/routing/cost/cost_" + str(num_matrix) + \
+             "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt","w+")
+    for i in range(num_cluster):
+        for j in range(num_cluster):
+            f.write("%d %d %f" % (i, j, cost[i][j]))
+            f.write("\n")
+    f.close()
 
     while num_cluster != 1:
         #  Find the pair of clusters Ci and Cj with minimum costi, j.
@@ -151,7 +155,8 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
                 else:
                     cost[selected_a][j] = \
                     calculate_merging_cost(cluster[selected_a], 
-                                           cluster[j], link, capacity, num_pair)
+                                           cluster[j], link, 
+                                           capacity, num_pair)
                     cost[j][selected_a] = cost[selected_a][j]
                     print "update cost %d,%d : %f" % (selected_a, j,
                                                       cost[selected_a][j]) 
@@ -188,9 +193,12 @@ def main(argv):
     print 'All done in %0.2fs!' % (now - start)
 
     print "cluster num : ", len(clusters) 
+
+    # save cluster result into clusters file
  
-    f = open("/home/mininet/dhrpox/routing/clusters_" + str(num_matrix) + \
-             "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt","w+")
+    f = open(usr_home + "/dhrpox/routing/clusters/clusters_" + \
+             str(num_matrix) + "TM_" + str(p_threshold) + \
+             "_" + str(num_pair) + ".txt","w+")
     for c in range(len(clusters)):
         f.write("next cluster  \n")
         print "cluster %d" % c, "has %d" % len(clusters[c]), " matrices"
