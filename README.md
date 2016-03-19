@@ -47,7 +47,7 @@ Use a CS 244 Mininet VM to run the code (either from the class website or an Ama
 
 6. Run it!
 
-    `$ cd ~/244proj`
+    `$ cd ~/dhrpox`
 
     Terminal #1 - start the remote controller
 
