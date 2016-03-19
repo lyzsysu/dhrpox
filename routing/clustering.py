@@ -41,7 +41,7 @@ def calculate_merging_cost(cluster_a, cluster_b, all_tm,
         traffic_matrix[num] = tm
         num = num + 1
 
-    performance, ignore1, ignore2 = explicit_routing(traffic_matrix, all_tm
+    performance, ignore1, ignore2 = explicit_routing(traffic_matrix, all_tm,
                                                      link, capacity, num_pair)
 
     return performance
