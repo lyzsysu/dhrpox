@@ -55,5 +55,15 @@ Use a CS 244 Mininet VM to run the code (either from the class website or an Ama
 
     Terminal #2 - start the mininet
 
+    `$ sudo python ~/dhrpox/abilene.py algorithm traffic.json`
+    
+    eg:
+    
+    `$ sudo python ~/dhrpox/abilene.py dhr TM1.json`
+
+7. Debug
+
+    you can use the following comand to open an abilene topo to do some test
+
     `$ sudo mn --custom ~/dhrpox/ripllib/mn.py --topo abilene --controller=remote --link=tc --mac`
 
