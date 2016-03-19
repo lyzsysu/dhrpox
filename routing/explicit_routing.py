@@ -245,7 +245,7 @@ def select_node_pairs(tm, link, capacity, path, opt_utilization, k):
 
     return selected_node_pair
 
-def explicit_routing(tm, link, capacity, num_selected = 35):
+def explicit_routing(tm, all_traffic_matrix, link, capacity, num_selected = 35):
 
     """ this funciton is used to calculate the explicit_path
 
@@ -266,8 +266,8 @@ def explicit_routing(tm, link, capacity, num_selected = 35):
     for t in range(num_matrix):
         opt_utilization[t], ignore = \
         destination_based_routing(tm[t], link, capacity)
-   
-    basic_tm = get_basic_tm(tm, num_switch)
+
+    basic_tm = get_basic_tm(all_traffic_matrix, num_switch)
 
     mlu, basic_allocation = destination_based_routing(basic_tm, link, capacity)
 
@@ -344,16 +344,16 @@ def main():
     link, capacity, num_switch, num_link = \
     read_link(usr_home + "/dhrpox/topology/abilene.txt")
 
-    tm = read_traffic(usr_home + "/dhrpox/traffic/288TM",
+    all_tm = read_traffic(usr_home + "/dhrpox/traffic/288TM",
                       num_matrix, num_switch)
 
     tm_tmp = {}
-    tm_tmp[0] = tm[0] 
+    tm_tmp[0] = all_tm[0] 
     
     num_pair = 35
 
     performance, explicit_fraction, selected_node_pair = \
-    explicit_routing(tm_tmp, link, capacity, num_pair)
+    explicit_routing(tm_tmp, all_tm, link, capacity, num_pair)
 
     num_pair = len(selected_node_pair)
 

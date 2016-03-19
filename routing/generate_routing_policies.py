@@ -78,24 +78,24 @@ def main(argv):
 
     f = open(output_file,"w+")
 
-    #traffic_file = usr_home + "/dhrpox/traffic/288TM"
-    #tm = read_traffic(traffic_file, num_matrix, num_switch)
-    #basic_traffic_matrix = get_basic_tm(tm, num_switch)
-    #mlu, allocation = destination_based_routing(basic_traffic_matrix, 
-    #                                            link, capacity)    
-    #path = allocation_2_path(allocation, link, num_switch)
+    traffic_file = usr_home + "/dhrpox/traffic/288TM"
+    tm = read_traffic(traffic_file, num_matrix, num_switch)
+    basic_traffic_matrix = get_basic_tm(tm, num_switch)
+    mlu, allocation = destination_based_routing(basic_traffic_matrix, 
+                                                link, capacity)    
+    path = allocation_2_path(allocation, link, num_switch)
 
     for c in range(num_cluster):
         f.write("Cluster %d: \n" % (c + 1))
 
-        basic_traffic_matrix = get_basic_tm(cluster[c], num_switch)
-        mlu, allocation = destination_based_routing(basic_traffic_matrix,
-                                                    link, capacity)
-        path = allocation_2_path(allocation, link, num_switch)
+        #basic_traffic_matrix = get_basic_tm(cluster[c], num_switch)
+        #mlu, allocation = destination_based_routing(basic_traffic_matrix,
+        #                                            link, capacity)
+        #path = allocation_2_path(allocation, link, num_switch)
 
 
         performance, explicit_fraction, selected_node_pair = \
-        explicit_routing(cluster[c], link, capacity)
+        explicit_routing(cluster[c], tm, link, capacity)
         
         explicit_path = explicit_fraction_2_path(explicit_fraction,
                                                  selected_node_pair, link)

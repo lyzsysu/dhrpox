@@ -19,7 +19,8 @@ from time import time
 
 MAX = 100000000
 
-def calculate_merging_cost(cluster_a, cluster_b, link, capacity, num_pair):
+def calculate_merging_cost(cluster_a, cluster_b, all_tm,
+                           link, capacity, num_pair):
 
     """ merge cluster_b into cluster_a, and return the performance 
         after merging """
@@ -40,7 +41,7 @@ def calculate_merging_cost(cluster_a, cluster_b, link, capacity, num_pair):
         traffic_matrix[num] = tm
         num = num + 1
 
-    performance, ignore1, ignore2 = explicit_routing(traffic_matrix, 
+    performance, ignore1, ignore2 = explicit_routing(traffic_matrix, all_tm
                                                      link, capacity, num_pair)
 
     return performance
@@ -98,7 +99,8 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
         for j in cluster:
             if i == j:
                 continue
-            cost[i][j] = calculate_merging_cost(cluster[i], cluster[j], 
+            cost[i][j] = calculate_merging_cost(cluster[i], cluster[j],
+                                                traffic_matrix, 
                                                 link, capacity, num_pair)
     
             print ("the performance of merging cluster %d and %d : %f"
@@ -154,8 +156,8 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
                     continue
                 else:
                     cost[selected_a][j] = \
-                    calculate_merging_cost(cluster[selected_a], 
-                                           cluster[j], link, 
+                    calculate_merging_cost(cluster[selected_a], cluster[j],
+                                           traffic_matrix, link, 
                                            capacity, num_pair)
                     cost[j][selected_a] = cost[selected_a][j]
                     print "update cost %d,%d : %f" % (selected_a, j,
