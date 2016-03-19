@@ -95,18 +95,19 @@ def main():
         optimal_utilization[t], ignore = \
         destination_based_routing(tm[t], link, capacity)
 
-    robust_path_file = (usr_home + "/dhrpox/routing/robust_path.txt")
+    robust_path_file = (usr_home + "/dhrpox/routing/path/robust_path.txt")
     robust_path = read_robust_path(robust_path_file, num_switch)
 
-    cluster_file = (usr_home + "/dhrpox/routing/clusters_288TM_1.05_35.txt")
+    cluster_file = (usr_home + 
+                    "/dhrpox/routing/clusters/clusters_288TM_1.05_35.txt")
     cluster = read_cluster(cluster_file, num_switch)
 
     num_cluster = len(cluster)
 
-    dhr_path_file = (usr_home + "/dhrpox/routing/dhr_path_1.05_35.txt")
+    dhr_path_file = (usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt")
     dhr_path = read_dhr_path(dhr_path_file, num_switch, num_cluster)
 
-    compare_result_file = usr_home + "/dhrpox/evaluation/compare_result_1.05_35"
+    compare_result_file = usr_home + "/dhrpox/evaluation/com_res_1.05_35.txt"
     f = open(compare_result_file,"w+")
 
     # for every matrix in traffic matrix list

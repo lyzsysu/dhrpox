@@ -348,11 +348,12 @@ def main():
                       num_matrix, num_switch)
 
     tm_tmp = {}
-
     tm_tmp[0] = tm[0] 
+    
+    num_pair = 35
 
     performance, explicit_fraction, selected_node_pair = \
-    explicit_routing(tm_tmp, link, capacity)
+    explicit_routing(tm_tmp, link, capacity, num_pair)
 
     num_pair = len(selected_node_pair)
 

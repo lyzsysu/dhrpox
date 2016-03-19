@@ -55,42 +55,42 @@ def read_cluster(filename, num_switch):
 
     return cluster
 
-if __name__ == "__main__":
-
-    num_matrix = 288
+def main(argv):
+    
+    num_matrix = int(argv[1])
+    p_threshold = float(argv[2])
+    num_pair = int(argv[3])
 
     link_file = usr_home + "/dhrpox/topology/abilene.txt"
     link, capacity, num_switch, num_link = read_link(link_file)
 
-    cluster_file = \
-    usr_home + "/dhrpox/routing/clusters/clusters_288TM_1.05_35.txt"
+    cluster_file = usr_home + "/dhrpox/routing/clusters/clusters_" \
+                   + str(num_matrix) + "TM_" + str(p_threshold) + "_" \
+                   + str(num_pair) + ".txt"
     cluster = read_cluster(cluster_file, num_switch)
 
     num_cluster = len(cluster)
     print "num_cluster is :", num_cluster
 
-    output_file = usr_home + "/dhrpox/routing/path/dhr_1.05_35_path.txt"
+    output_file = usr_home + "/dhrpox/routing/path/dhr_" \
+                   + str(num_matrix) + "TM_" + str(p_threshold) + "_" \
+                   + str(num_pair) + ".txt"
 
     f = open(output_file,"w+")
 
     #traffic_file = usr_home + "/dhrpox/traffic/288TM"
     #tm = read_traffic(traffic_file, num_matrix, num_switch)
-
     #basic_traffic_matrix = get_basic_tm(tm, num_switch)
-
     #mlu, allocation = destination_based_routing(basic_traffic_matrix, 
-    #                                            link, capacity)
-        
+    #                                            link, capacity)    
     #path = allocation_2_path(allocation, link, num_switch)
 
     for c in range(num_cluster):
         f.write("Cluster %d: \n" % (c + 1))
 
         basic_traffic_matrix = get_basic_tm(cluster[c], num_switch)
-
         mlu, allocation = destination_based_routing(basic_traffic_matrix,
                                                     link, capacity)
-
         path = allocation_2_path(allocation, link, num_switch)
 
 
@@ -151,3 +151,9 @@ if __name__ == "__main__":
     #             for d in range(num_switch):
     #                 print cluster[c][m][s][d]," ",
     #             print
+
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        raise Exception("you should input 'python clustering.py num_matrix" +
+                        " p_threshold selected_node_pair")
+    main(sys.argv)

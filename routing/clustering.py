@@ -213,6 +213,6 @@ def main(argv):
         
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print ("you should input 'python clustering.py num_matrix" + 
-               "p_threshold selected_node_pair")
+        raise Exception("you should input 'python clustering.py num_matrix" + 
+                        "p_threshold selected_node_pair")
     main(sys.argv)
