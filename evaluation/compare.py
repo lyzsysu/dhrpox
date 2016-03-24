@@ -107,6 +107,9 @@ def main():
     dhr_path_file = (usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt")
     dhr_path = read_dhr_path(dhr_path_file, num_switch, num_cluster)
 
+    oblivious_file = (usr_home + "/dhrpox/routing/path/oblivious_path.txt")
+    oblivious_path = read_robust_path(oblivious_file, num_switch)
+
     compare_result_file = usr_home + "/dhrpox/evaluation/com_res_1.05_35.txt"
     f = open(compare_result_file,"w+")
 
@@ -117,6 +120,12 @@ def main():
         robust_performance = calculate_performance(tm[m], m, robust_path, 
                                             link, capacity, 
                                             optimal_utilization, num_switch)
+
+        oblivious_performance = calculate_performance(tm[m], m, oblivious_path, 
+                                                      link, capacity, 
+                                                      optimal_utilization,
+                                                      num_switch)
+
         # because we have many dhr path for different clusters,
         # we choose the best performance among them.
         # for we can find out the tm is mostly close to which cluster
@@ -130,11 +139,13 @@ def main():
             if performance < dhr_performance:
                 dhr_performance = performance
 
-        f.write("robust %f VS dhr %f \n" % (robust_performance,
-                                            dhr_performance))
+        f.write("robust %f VS dhr %f VS oblivious %f\n" % (robust_performance,
+                                                        dhr_performance,
+                                                        oblivious_performance))
 
-        print "robust %f VS dhr %f" % (robust_performance,
-                                       dhr_performance)
+        print "robust %f VS dhr %f VS oblivious %f" % (robust_performance,
+                                                       dhr_performance,
+                                                       oblivious_performance)
     f.close()
 
 if __name__ == "__main__":
