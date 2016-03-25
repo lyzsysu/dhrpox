@@ -62,6 +62,7 @@ def read_robust_path(robust_path_file, num_switch):
             dst = int(line.split(" ")[4].split("\n")[0]) - 1
         if line.split(" ")[0] == "Path":
             route = line.split("     ")[1]
+            print line.split("     ")[1], line.split("     ")[2]
             percent = line.split("     ")[2].split("%")[0]
             count = line.split(" ")[1]
 

@@ -66,18 +66,28 @@ def main():
     basic_traffic_matrix = get_basic_tm(tm, num_switch)
 
     # show the sample of traffic matrices eg: tm[0]
-    for m in range(0, 1):
-        for s in range(num_switch):
-            for d in range(num_switch):
-                print ("%d" % tm[m][s][d]),
-            print
-        print
+    #for m in range(0, 1):
+    #    for s in range(num_switch):
+    #        for d in range(num_switch):
+    #            print ("%d" % tm[m][s][d]),
+    #        print
+    #    print
+
+    Sum_in = [0] * num_switch
+    Sum_egress = [0] * num_switch
 
     # show the basic traffic matrix
-    # for s in range(num_switch):
-    #     for d in range(num_switch):
-    #         print ("%d " % basic_traffic_matrix[s][d]),
-    #     print
+    for s in range(num_switch):
+        for d in range(num_switch):
+            if s == d:
+                continue
+            Sum_in[s] += basic_traffic_matrix[s][d]
+            Sum_egress[d] += basic_traffic_matrix[s][d]
+            #print ("%d " % basic_traffic_matrix[s][d]),
+        #print
+
+    for s in range(num_switch):
+        print Sum_in[s], Sum_egress[s]
 
 if __name__ == "__main__":
     main()
