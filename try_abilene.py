@@ -79,11 +79,10 @@ def start_traffic(net, port_count):
                 dst = net.get(dst_name)
 
                 port = IPERF_PORT_BASE + port_count
-                traf = traffic[src_idx][dst_idx]# / 100.0
-                print traf
+                traf = traffic[src_idx][dst_idx] * 10000
 
                 server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
-                client = '%s -c %s -p %s -t %d -u -b %dM &' % (IPERF_PATH,
+                client = '%s -c %s -p %s -t %d -u -b %dK &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
                                                  port, IPERF_SECONDS,
                                                  traf)
