@@ -15,6 +15,7 @@ import json
 
 from time import time, sleep
 from math import sqrt
+import random
 
 from mininet.node import RemoteController
 from mininet.net import Mininet
@@ -40,9 +41,9 @@ IPERF_SECONDS = 3600
 
 OUTDIR = 'results'
 
-HOST_NAMES = ('1_2', '2_2', '3_2', '4_2',
-              '5_2', '6_2', '7_2', '8_2',
-              '9_2', '10_2', '11_2', '12_2')
+HOST_NAMES = ('1_', '2_', '3_', '4_',
+              '5_', '6_', '7_', '8_',
+              '9_', '10_', '11_', '12_')
 
 lg.setLogLevel('info')
 
@@ -70,27 +71,28 @@ def start_traffic(net, port_count):
 
     # Start every flow on its own port
     for src_idx in traffic:
-        src_name = HOST_NAMES[int(src_idx)]
+        src_name = HOST_NAMES[int(src_idx)] + str(random.randint(2,11))
         src = net.get(src_name)
-
         for dst_idx in traffic[src_idx]:
-            dst_name = HOST_NAMES[int(dst_idx)]
-            dst = net.get(dst_name)
+            for i in range (2, 12):
+                dst_name = HOST_NAMES[int(dst_idx)] + str(i)
+                dst = net.get(dst_name)
 
-            port = IPERF_PORT_BASE + port_count
-            traf = traffic[src_idx][dst_idx] / 100.0
-            print traf
-            server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
-            client = '%s -c %s -p %s -t %d -u -b %dM &' % (IPERF_PATH,
+                port = IPERF_PORT_BASE + port_count
+                traf = traffic[src_idx][dst_idx]# / 100.0
+                print traf
+
+                server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
+                client = '%s -c %s -p %s -t %d -u -b %dM &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
                                                  port, IPERF_SECONDS,
                                                  traf)
-            dst.cmd(server)
-            src.cmd(client)
-            print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
-                  (src_name, src.IP('%s-eth0' % src_name), dst_name,
-                   dst.IP('%s-eth0' % dst_name), port)
-            port_count += 1
+                dst.cmd(server)
+                src.cmd(client)
+                print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
+                      (src_name, src.IP('%s-eth0' % src_name), dst_name,
+                      dst.IP('%s-eth0' % dst_name), port)
+                port_count += 1
 
 def avg(lst):
     return float(sum(lst)) / len(lst)
@@ -110,7 +112,9 @@ def bytes_to_throughputs(rxbytes, durations):
     """
     throughputs = {}
     for name in HOST_NAMES:
-        throughputs[name] = []
+        for i in range(2, 12):
+            h_name = name + str(i)
+            throughputs[h_name] = []
 
     for name in rxbytes:
         for i, sample in enumerate(rxbytes[name]):
@@ -133,21 +137,23 @@ def sample_rxbytes(net, rxbytes):
     """
     for name in HOST_NAMES:
         # print name
-        host = net.get(name)
-        iface = '%s-eth0:' % name
-        bytes = None
+        for i in range(2, 12):
+            h_name = name + str(i)
+            host = net.get(h_name)
+            iface = '%s-eth0:' % h_name
+            bytes = None
 
-        now = time()
-        res = host.cmd('cat /proc/net/dev')
-        # print (time() - now)
-        lines = res.split('\n')
-        for line in lines:
-            if iface in line:
-                bytes = int(line.split()[1])
-                rxbytes[name].append(bytes)
-                break
-        if bytes is None:
-            lg.error('Couldn\'t parse rxbytes for host %s!\n' % name)
+            now = time()
+            res = host.cmd('cat /proc/net/dev')
+            # print (time() - now)
+            lines = res.split('\n')
+            for line in lines:
+                if iface in line:
+                    bytes = int(line.split()[1])
+                    rxbytes[h_name].append(bytes)
+                    break
+            if bytes is None:
+                lg.error('Couldn\'t parse rxbytes for host %s!\n' % name)
 
 
 def aggregate_statistics(rxbytes, sample_durations):
@@ -224,7 +230,9 @@ def main(args):
     rxbytes = {}
     sample_durations = []
     for name in HOST_NAMES:
-        rxbytes[name] = []
+        for i in range(2, 12):
+            h_name = name + str(i)
+            rxbytes[h_name] = []
 
     sleep(10)
 

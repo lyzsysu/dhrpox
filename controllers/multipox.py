@@ -141,6 +141,9 @@ class DHRController(object):
 
                     src = self.t.id_gen(dpid = event.dpid).sw
                     dst = self.t.id_gen(dpid = out_dpid).sw
+                    if src == dst:
+                        print 'why'
+                        return
                     src_dst_pair = (src << 4) + dst
 	            route = self._choose_path(self.routeTable[src_dst_pair], 
                                               self.percentTable[src_dst_pair])
