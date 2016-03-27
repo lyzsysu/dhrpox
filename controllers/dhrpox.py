@@ -190,14 +190,15 @@ class DHRController(object):
 
   def _save_paths(self):
 
-      robust_path_file = usr_home + "/dhrpox/routing/robust_path.txt"
+      robust_path_file = usr_home + "/dhrpox/routing/path/robust_path.txt"
       robust_path = read_robust_path(robust_path_file, NUMSWITCH)
 
-      cluster_file = usr_home + "/dhrpox/routing/clusters_288TM_1.05_35.txt"
+      cluster_file = \
+      usr_home + "/dhrpox/routing/clusters/clusters_288TM_1.05_35.txt"
       cluster = read_cluster(cluster_file, NUMSWITCH)
       num_cluster = len(cluster)
 
-      dhr_path_file = usr_home + "/dhrpox/routing/dhr_path_1.05_35.txt"
+      dhr_path_file = usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt"
       dhr_path = read_dhr_path(dhr_path_file, NUMSWITCH, num_cluster)
 
       for src in range(NUMSWITCH):
