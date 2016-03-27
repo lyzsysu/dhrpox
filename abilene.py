@@ -204,7 +204,7 @@ def main(args):
     net.addController(name='dhrController', controller=RemoteController,
                       ip='127.0.0.1', port=6633)
     net.start()
-    dumpNodeConnections(net.hosts)
+    # dumpNodeConnections(net.hosts)
 
     sleep(5)
 

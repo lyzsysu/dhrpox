@@ -265,7 +265,7 @@ class DHRController(object):
       # next step is to put the route on the topology
 
       #self._install_paths()
-      log.info("all basic paths set")
+      #log.info("all basic paths set")
 
   def _install_paths(self):
 

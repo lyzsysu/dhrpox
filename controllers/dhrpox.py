@@ -44,7 +44,7 @@ from readpath import *
 from pox.openflow.of_json import *
 
 log = core.getLogger()
-log.setLevel(logging.WARNING)
+#log.setLevel(logging.WARNING)
 
 # Number of switches
 NUMSWITCH = 12
