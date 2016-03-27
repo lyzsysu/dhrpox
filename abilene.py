@@ -82,7 +82,7 @@ def start_traffic(net, port_count):
             client = '%s -c %s -p %s -t %d -u -b %dM &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
                                                  port, IPERF_SECONDS,
-                                                 traffic[src_idx][dst_idx] / 10)
+                                                 traffic[src_idx][dst_idx])
             dst.cmd(server)
             src.cmd(client)
             print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
@@ -212,10 +212,10 @@ def main(args):
 
     #print 'Generating the traffic pattern in "%s"...' % args.traffic
     port_count = 0
-    for i in range(10):
-        start_traffic(net, port_count)
-        port_count += 1
-        sleep(1)
+    # for i in range(10):
+    start_traffic(net, port_count)
+    #    port_count += 1
+    #    sleep(1)
 
     # Sample the cumulative # of bytes received for each host, every second.
     # The diff between adjacent samples gives us throughput for that second.
@@ -223,6 +223,8 @@ def main(args):
     sample_durations = []
     for name in HOST_NAMES:
         rxbytes[name] = []
+
+    sleep(10)
 
     now = time()
     for i in xrange(N_SAMPLES):

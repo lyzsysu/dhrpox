@@ -145,7 +145,7 @@ class DHRController(object):
 	            route = self._choose_path(self.routeTable[src_dst_pair], 
                                               self.percentTable[src_dst_pair])
             
-                    log.info("route : %s" % route)
+                    # log.info("route : %s" % route)
                     for i, node in enumerate(route):
                         node_dpid = self.t.id_gen(name = node).dpid
                         if i < len(route) - 1:
@@ -158,8 +158,8 @@ class DHRController(object):
                 # else: for arp icmp use the basic path
                 else:   
                     # log.info("here we handle a packet_proactive")
-                    log.info("src  = %s" % packet.src)
-                    log.info("dst  = %s" % packet.dst)
+                    # log.info("src  = %s" % packet.src)
+                    # log.info("dst  = %s" % packet.dst)
                     self.switches[out_dpid].send_packet_data(final_out_port,
                                                              event.data)  
 
