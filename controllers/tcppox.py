@@ -1,10 +1,9 @@
 #!/usr/bin/python
-# Filename: multipox.py
+# Filename: dhrpox.py
 
 """
     DynamicHybridRouting + POX.
-    Second version try to make multipath for the same host
-    use tcp port to put different flows into different paths
+    First version is only proactively set all path on the abilene topology
 """
 
 import os
@@ -15,6 +14,7 @@ sys.path.append(usr_home + "/dhrpox/topology")
 sys.path.append(usr_home + "/dhrpox/traffic")
 sys.path.append(usr_home + "/dhrpox/routing")
 
+from time import time
 import random
 import logging
 from struct import pack
@@ -132,38 +132,10 @@ class DHRController(object):
             self._flood(event)
 
         else:
-            self.macTable[packet.src] = (dpid, in_port)
-            if packet.dst in self.macTable:
-                out_dpid, final_out_port = self.macTable[packet.dst]
-
-                if isinstance(packet.next, ipv4):
-                    match = of.ofp_match.from_packet(packet)
-
-                    src = self.t.id_gen(dpid = event.dpid).sw
-                    dst = self.t.id_gen(dpid = out_dpid).sw
-                    if src == dst:
-                        return
-                    src_dst_pair = (src << 4) + dst
-	            route = self._choose_path(self.routeTable[src_dst_pair], 
-                                              self.percentTable[src_dst_pair])
-            
-                    # log.info("route : %s" % route)
-                    for i, node in enumerate(route):
-                        node_dpid = self.t.id_gen(name = node).dpid
-                        if i < len(route) - 1:
-                            next_node = route[i + 1]
-                            out_port, next_in_port = self.t.port(node,
-                                                                 next_node)
-                        else:
-                            out_port = final_out_port
-                        self.switches[node_dpid].install(out_port, match)
-                # else: for arp icmp use the basic path
-                else:   
-                    # log.info("here we handle a packet_proactive")
-                    # log.info("src  = %s" % packet.src)
-                    # log.info("dst  = %s" % packet.dst)
-                    self.switches[out_dpid].send_packet_data(final_out_port,
-                                                             event.data)  
+            # mode proactive use this code
+            log.info("here we handle a packet_proactive")
+            log.info("src  = %s" % packet.src)
+            log.info("dst  = %s" % packet.dst)
 
   def _handle_FlowStatsReceived (self, event):
       stats = flow_stats_to_list(event.stats)
@@ -190,7 +162,7 @@ class DHRController(object):
               if random.random() * 100 < percent_list[i]:
                   return route_list[i]
 
-  def _install_explicit_path(self, src, dst, route, match):
+  def _install_explicit_path(self, src, dst, port, route):
       #log.info("route for %s %s: %s" % (src,dst,route))
       src_sw = self.t.up_switches(src)
       assert len(src_sw) == 1
@@ -198,6 +170,13 @@ class DHRController(object):
       dst_sw = self.t.up_switches(dst)
       assert len(dst_sw) == 1
       dst_sw_name = dst_sw[0]
+
+      # Form OF match
+      match = of.ofp_match()
+      match.dl_src = EthAddr(self.t.id_gen(name = src).etha_str()).toRaw()
+      match.dl_dst = EthAddr(self.t.id_gen(name = dst).etha_str()).toRaw()
+      if port != 0:
+          match.tcp_dst = port
 
       final_out_port, ignore = self.t.port(route[-1],dst)
 
@@ -227,19 +206,6 @@ class DHRController(object):
 
       for src in range(NUMSWITCH):
           for dst in range(NUMSWITCH):
-
-              #dhr_performance = MAX
-              #select = 0
-              #for c in range(num_cluster):
-              #    performance = calculate_performance(tm[m], m, dhr_path[c],
-              #                                        link, capacity,
-              #                                        optimal_utilization,
-              #                                        num_switch)
-              #    if performance < dhr_performance:
-              #        dhr_performance = performance
-              #        select = c
-
-              #save robust_path
               for p in robust_path[src][dst]:
                   route = []
                   path = robust_path[src][dst][p]['route']
@@ -247,14 +213,6 @@ class DHRController(object):
                   for sw in path.split("-"):
                       route.append(sw + "_1")
 
-              # save dhr_path
-              #for p in dhr_path[c][src][dst]:
-              #    route = []
-              #    path = robust_path[c][src][dst][p]['route']
-              #    percent = robust_path[c][src][dst][p]['percent']
-              #    for sw in path.split("-"):
-              #        route.append(sw + "_1")
-                  
                   src_dst_pair = ((src + 1)<< 4) + dst + 1
                   if src_dst_pair not in self.routeTable:
                       # initialize the tables for the src id
@@ -266,31 +224,31 @@ class DHRController(object):
       log.info("all the paths have been saved in the routeTable")
       # next step is to put the route on the topology
 
-      #self._install_paths()
-      #log.info("all basic paths set")
-
   def _install_paths(self):
 
       for src in range(1, NUMSWITCH + 1):
           for dst in range(1, NUMSWITCH + 1):
               if src != dst:
                   src_dst_pair = (src << 4) + dst
-                  host_src = str(src) + "_2"
-                  host_dst = str(dst) + "_2"
+                  ingress_router = str(src) + '_1'
+                  egress_router = str(dst) + '_1'
 
-                  # Form OF match
-                  match = of.ofp_match()
-                  match.dl_src = EthAddr(self.t.id_gen(name = src)\
-                                         .etha_str()).toRaw()
-                  match.dl_dst = EthAddr(self.t.id_gen(name = dst)\
-                                         .etha_str()).toRaw()
-                  # match.protocol = arp
-                  # Find the route
-                  route = \
-                  self._choose_path(self.routeTable[src_dst_pair], 
-                                    self.percentTable[src_dst_pair])
-                  self._install_explicit_path(host_src, host_dst,
-                                              route, match)
+                  for host_src in sorted (self.t.down_hosts(ingress_router)):
+                      for host_dst in sorted (self.t.down_hosts(egress_router)):
+                          route = \
+                          self._choose_path(self.routeTable[src_dst_pair], 
+                                            self.percentTable[src_dst_pair])
+                          # log.info("route : %s" % route)
+                          self._install_explicit_path(host_src, host_dst, 
+                                                      0, route)
+                          for i in range(10):
+                              tcp_port = 5001 + i
+                              route = \
+                              self._choose_path(self.routeTable[src_dst_pair], 
+                                                self.percentTable[src_dst_pair])
+                              # log.info("route : %s" % route)
+                              self._install_explicit_path(host_src, host_dst, 
+                                                          tcp_port, route)
               else:
                   # for hosts in the same switch
                   router = str(src) + '_1'
@@ -298,11 +256,11 @@ class DHRController(object):
                   for host_dst in sorted (self.t.down_hosts(router)):
                       final_out_port, ignore = self.t.port(router, host_dst)
 
-                      # Form OF match
-                      match = of.ofp_match()
-                      match.dl_dst = \
-                      EthAddr(self.t.id_gen(name = host_dst).etha_str()).toRaw()
-                      self.switches[node_dpid].install(final_out_port, match)
+                  # Form OF match
+                  match = of.ofp_match()
+                  match.dl_dst = \
+                  EthAddr(self.t.id_gen(name = host_dst).etha_str()).toRaw()
+                  self.switches[node_dpid].install(final_out_port, match)
 
   def _handle_ConnectionUp (self, event):
 
@@ -332,7 +290,10 @@ class DHRController(object):
 
           self._save_paths()
           # log.info("self.routeTable : %s" % self.routeTable)
-      
+          start = time()
+          self._install_paths()
+          log.info("use %s seconds to install paths" % (time() - start))
+          # the pre_install_paths should habe been installed    
           log.info("Woo! All paths ok")
 
 def _timer_func():

@@ -76,20 +76,21 @@ def start_traffic(net, port_count):
         for dst_idx in traffic[src_idx]:
             dst_name = HOST_NAMES[int(dst_idx)]
             dst = net.get(dst_name)
+            traf = traffic[src_idx][dst_idx] * 10
 
-            port = IPERF_PORT_BASE + port_count
-            traf = traffic[src_idx][dst_idx] * 10000
-            server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
-            client = '%s -c %s -p %s -t %d -u -b %dK &' % (IPERF_PATH,
+            port_count = 0
+            for i in range(10):
+                port = IPERF_PORT_BASE + port_count
+                server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
+                client = '%s -c %s -p %s -t %d -u -b %dK &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
-                                                 port, IPERF_SECONDS,
-                                                 traf)
-            dst.cmd(server)
-            src.cmd(client)
-            print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
-                  (src_name, src.IP('%s-eth0' % src_name), dst_name,
-                   dst.IP('%s-eth0' % dst_name), port)
-            port_count += 1
+                                                 port, IPERF_SECONDS, traf)
+                dst.cmd(server)
+                src.cmd(client)
+                print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
+                      (src_name, src.IP('%s-eth0' % src_name), dst_name,
+                       dst.IP('%s-eth0' % dst_name), port)
+                port_count += 1
 
 def avg(lst):
     return float(sum(lst)) / len(lst)

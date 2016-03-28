@@ -1,0 +1,104 @@
+#!/usr/bin/python
+# Filename: readtraffic.py
+
+import sys
+import os
+
+def read_traffic(filename, num_matrix, num_switch):
+
+    """ read traffic matrix from filename
+        tm: list eg: tm[0][src][dst] = 100 """
+
+    tm = [[[0.0 for s in range(num_switch)] 
+                for d in range(num_switch)] 
+                for m in range(num_matrix)]
+
+    m = 0 # number of matrices
+
+    f = open(filename)
+    line = f.readline()
+    while line:
+        src = dst = 0
+        for demand in line.split(" "):
+            if demand == "\n":
+                break
+            # demand is x * 100bytes in 5 minutes,
+            # so it has to divide 3000 to byte/sec
+            tm[m][src][dst] = float(demand) / 3000
+            dst += 1
+            if dst == num_switch:
+                src += 1
+                dst = 0
+        m += 1
+        line = f.readline()
+    f.close()
+
+    return tm
+
+def get_basic_tm(tms, num_switch):
+
+    """ we choose maximum demand volume traffic matrix 
+        as the basic traffic matrix """
+
+    basic_traffic_matrix = [[0.0 for col in range(num_switch)]
+                                 for row in range(num_switch)]   
+
+    num_matrix = len(tms) 
+
+    for s in range(num_switch):
+        for d in range(num_switch):
+            Max = 0
+            for m in range(num_matrix):
+                Max = max(Max, tms[m][s][d])
+            basic_traffic_matrix[s][d] = Max
+
+    return basic_traffic_matrix
+
+def main():
+
+    num_matrix = 288
+    num_switch = 12
+
+    path = os.path.expanduser('~') + "/dhrpox/traffic/288TM"
+
+    tm = read_traffic(path, num_matrix, num_switch)
+
+    basic_traffic_matrix = get_basic_tm(tm, num_switch)
+
+    Sum_in = [0] * num_switch
+    Sum_egress = [0] * num_switch
+
+    # show the sample of traffic matrices eg: tm[0]
+    for m in range(0, 288):
+        sum_in = [0] * num_switch
+        sum_out = [0] * num_switch
+        for s in range(num_switch):
+            for d in range(num_switch):
+                if s == d:
+                    continue
+                sum_in[s] += tm[m][s][d]
+                sum_out[d] += tm[m][s][d]
+                #print ("%d" % tm[m][s][d]),
+            # print
+        #  print
+        for s in range(num_switch):
+            if sum_in[s] > Sum_in[s]:
+                Sum_in[s] = sum_in[s]
+            if sum_out[s] > Sum_egress[s]:
+                Sum_egress[s] = sum_out[s]
+
+    # show the basic traffic matrix
+    for s in range(num_switch):
+        for d in range(num_switch):
+            if s == d:
+                continue
+            #Sum_in[s] += basic_traffic_matrix[s][d]
+            #Sum_egress[d] += basic_traffic_matrix[s][d]
+            #print ("%d " % basic_traffic_matrix[s][d]),
+        #print
+
+    for s in range(num_switch):
+        print Sum_in[s], Sum_egress[s]
+
+if __name__ == "__main__":
+    main()
