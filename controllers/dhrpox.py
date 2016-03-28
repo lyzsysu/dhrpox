@@ -20,6 +20,7 @@ from struct import pack
 from zlib import crc32
 from copy import copy
 from random import choice
+from time import time
 
 from pox.core import core
 from pox.lib.util import dpidToStr
@@ -278,9 +279,12 @@ class DHRController(object):
 
           self._save_paths()
           # log.info("self.routeTable : %s" % self.routeTable)
+
+          start = time()
           self._install_paths()
-      
-          # the pre_install_paths should habe been installed    
+          log.info("use %s seconds to install paths" % (time() - start))      
+
+          # the pre_install_paths should have been installed    
           log.info("Woo! All paths ok")
 
 def _timer_func():

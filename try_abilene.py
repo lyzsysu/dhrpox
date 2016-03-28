@@ -213,7 +213,8 @@ def main(args):
     net.start()
     # dumpNodeConnections(net.hosts)
 
-    sleep(5)
+    print 'wait 10 secs for installing paths'
+    sleep(10)
 
     # CLI(net)
 
@@ -232,8 +233,6 @@ def main(args):
         for i in range(2, 12):
             h_name = name + str(i)
             rxbytes[h_name] = []
-
-    sleep(10)
 
     now = time()
     for i in xrange(N_SAMPLES):
