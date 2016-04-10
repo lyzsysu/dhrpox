@@ -125,7 +125,7 @@ class AsymmetricTopo(Topo):
         nodes = [n for n in self.g[name] if self.id_gen(name = n).is_switch()]
         return nodes
 
-    def __init__( self, toponame = "abilene", num_host = 2):
+    def __init__( self, toponame = "abilene", num_host = 1):
         
         Topo.__init__( self )
         

@@ -107,10 +107,10 @@ def main():
     dhr_path_file = (usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt")
     dhr_path = read_dhr_path(dhr_path_file, num_switch, num_cluster)
 
-    oblivious_file = (usr_home + "/dhrpox/routing/path/output2_288matrix_max.txt")
+    oblivious_file = (usr_home + "/dhrpox/routing/path/oblivious_path.txt")
     oblivious_path = read_robust_path(oblivious_file, num_switch)
 
-    compare_result_file = usr_home + "/dhrpox/evaluation/com_res_1.05_35_ob.txt"
+    compare_result_file = usr_home + "/dhrpox/evaluation/compare_result.txt"
     f = open(compare_result_file,"w+")
 
     # for every matrix in traffic matrix list
