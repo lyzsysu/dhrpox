@@ -125,7 +125,7 @@ class AbileneTopo(Topo):
         nodes = [n for n in self.g[name] if self.id_gen(name = n).is_switch()]
         return nodes
 
-    def __init__( self, num_host = 2):
+    def __init__( self, num_host = 1):
         
         Topo.__init__( self )
         
@@ -139,7 +139,7 @@ class AbileneTopo(Topo):
             sw_opts = self.def_nopts(sw_id)
             self.add_switch(sw_id, **sw_opts)
 
-            for h in range(2, 12):
+            for h in range(2, num_host + 2):
                 host_id = self.id_gen(e, h).name_str()
                 host_opts = self.def_nopts(host_id)
                 self.add_host(host_id, **host_opts)

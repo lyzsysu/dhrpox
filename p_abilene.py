@@ -15,7 +15,6 @@ import json
 
 from time import time, sleep
 from math import sqrt
-import random
 
 from mininet.node import RemoteController
 from mininet.net import Mininet
@@ -24,7 +23,7 @@ from mininet.util import dumpNodeConnections
 from mininet.cli import CLI
 from mininet.link import TCLink
 
-from ripllib.abilene import AbileneTopo
+from ripllib.asymmetry import AsymmetricTopo
 
 from argparse import ArgumentParser
 
@@ -41,9 +40,9 @@ IPERF_SECONDS = 3600
 
 OUTDIR = 'results'
 
-HOST_NAMES = ('1_', '2_', '3_', '4_',
-              '5_', '6_', '7_', '8_',
-              '9_', '10_', '11_', '12_')
+HOST_NAMES = ('1_2', '2_2', '3_2', '4_2',
+              '5_2', '6_2', '7_2', '8_2',
+              '9_2', '10_2', '11_2', '12_2')
 
 lg.setLogLevel('info')
 
@@ -71,27 +70,28 @@ def start_traffic(net, port_count):
 
     # Start every flow on its own port
     for src_idx in traffic:
-        src_name = HOST_NAMES[int(src_idx)] + str(random.randint(2,11))
+        src_name = HOST_NAMES[int(src_idx)]
         src = net.get(src_name)
+
         for dst_idx in traffic[src_idx]:
-            for i in range (2, 12):
-                dst_name = HOST_NAMES[int(dst_idx)] + str(i)
-                dst = net.get(dst_name)
+            dst_name = HOST_NAMES[int(dst_idx)]
+            dst = net.get(dst_name)
+            traf = traffic[src_idx][dst_idx]
 
-                port = IPERF_PORT_BASE + port_count
-                traf = traffic[src_idx][dst_idx] * 10
-
-                server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
-                client = '%s -c %s -p %s -t %d -u -b %dK &' % (IPERF_PATH,
+            port = IPERF_PORT_BASE + port_count
+            server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
+            client = '%s -c %s -p %s -t %d -u -b %dK -P 10 &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
-                                                 port, IPERF_SECONDS,
-                                                 traf)
-                dst.cmd(server)
-                src.cmd(client)
-                print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
-                      (src_name, src.IP('%s-eth0' % src_name), dst_name,
-                      dst.IP('%s-eth0' % dst_name), port)
-                port_count += 1
+                                                 port, IPERF_SECONDS, traf)
+            dst.cmd(server)
+            src.cmd(client)
+            print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
+                  (src_name, src.IP('%s-eth0' % src_name), dst_name,
+                   dst.IP('%s-eth0' % dst_name), port)
+            port_count += 1
+            # sleep(3)
+        # sleep(30)
+        raw_input("wait enter")
 
 def avg(lst):
     return float(sum(lst)) / len(lst)
@@ -111,9 +111,7 @@ def bytes_to_throughputs(rxbytes, durations):
     """
     throughputs = {}
     for name in HOST_NAMES:
-        for i in range(2, 12):
-            h_name = name + str(i)
-            throughputs[h_name] = []
+        throughputs[name] = []
 
     for name in rxbytes:
         for i, sample in enumerate(rxbytes[name]):
@@ -136,23 +134,21 @@ def sample_rxbytes(net, rxbytes):
     """
     for name in HOST_NAMES:
         # print name
-        for i in range(2, 12):
-            h_name = name + str(i)
-            host = net.get(h_name)
-            iface = '%s-eth0:' % h_name
-            bytes = None
+        host = net.get(name)
+        iface = '%s-eth0:' % name
+        bytes = None
 
-            now = time()
-            res = host.cmd('cat /proc/net/dev')
-            # print (time() - now)
-            lines = res.split('\n')
-            for line in lines:
-                if iface in line:
-                    bytes = int(line.split()[1])
-                    rxbytes[h_name].append(bytes)
-                    break
-            if bytes is None:
-                lg.error('Couldn\'t parse rxbytes for host %s!\n' % name)
+        now = time()
+        res = host.cmd('cat /proc/net/dev')
+        # print (time() - now)
+        lines = res.split('\n')
+        for line in lines:
+            if iface in line:
+                bytes = int(line.split()[1])
+                rxbytes[name].append(bytes)
+                break
+        if bytes is None:
+            lg.error('Couldn\'t parse rxbytes for host %s!\n' % name)
 
 
 def aggregate_statistics(rxbytes, sample_durations):
@@ -206,17 +202,19 @@ def main(args):
     os.system('killall -9 ' + IPERF_PATH)
 
     start = time()
-    topo = AbileneTopo()
+    topo = AsymmetricTopo()
     net = Mininet(topo=topo, link=TCLink)
     net.addController(name='dhrController', controller=RemoteController,
                       ip='127.0.0.1', port=6633)
     net.start()
     # dumpNodeConnections(net.hosts)
 
-    print 'wait 10 secs for installing paths'
-    sleep(10)
+    print 'wait 5 secs for installing paths'
+    sleep(5)
 
     # CLI(net)
+    net.pingAll()
+    sleep(10)
 
     #print 'Generating the traffic pattern in "%s"...' % args.traffic
     port_count = 0
@@ -230,9 +228,9 @@ def main(args):
     rxbytes = {}
     sample_durations = []
     for name in HOST_NAMES:
-        for i in range(2, 12):
-            h_name = name + str(i)
-            rxbytes[h_name] = []
+        rxbytes[name] = []
+
+    sleep(20)
 
     now = time()
     for i in xrange(N_SAMPLES):
