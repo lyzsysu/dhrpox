@@ -212,7 +212,7 @@ def main(args):
     print 'wait 5 secs for installing paths'
     sleep(5)
 
-    # CLI(net)
+    CLI(net)
     net.pingAll()
     sleep(10)
 
@@ -231,6 +231,8 @@ def main(args):
         rxbytes[name] = []
 
     sleep(20)
+
+    CLI(net)
 
     now = time()
     for i in xrange(N_SAMPLES):
