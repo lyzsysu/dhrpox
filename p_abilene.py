@@ -90,8 +90,8 @@ def start_traffic(net, port_count):
                    dst.IP('%s-eth0' % dst_name), port)
             port_count += 1
             # sleep(3)
+            raw_input("wait enter")
         # sleep(30)
-        raw_input("wait enter")
 
 def avg(lst):
     return float(sum(lst)) / len(lst)
