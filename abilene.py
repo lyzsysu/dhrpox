@@ -23,7 +23,7 @@ from mininet.util import dumpNodeConnections
 from mininet.cli import CLI
 from mininet.link import TCLink
 
-from ripllib.abilene import AbileneTopo
+from ripllib.asymmetry import AsymmetricTopo
 
 from argparse import ArgumentParser
 
@@ -76,21 +76,25 @@ def start_traffic(net, port_count):
         for dst_idx in traffic[src_idx]:
             dst_name = HOST_NAMES[int(dst_idx)]
             dst = net.get(dst_name)
-            traf = traffic[src_idx][dst_idx] * 10
-
-            port_count = 0
-            for i in range(10):
-                port = IPERF_PORT_BASE + port_count
-                server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
-                client = '%s -c %s -p %s -t %d -u -b %dK &' % (IPERF_PATH,
+            traf = traffic[src_idx][dst_idx]
+            print type(traf)
+            
+            if traf < 15:
+                continue
+            port = IPERF_PORT_BASE + port_count
+            server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
+            client = '%s -c %s -p %s -t %d -u -b %dK -P 10 &' % (IPERF_PATH,
                                                  dst.IP('%s-eth0' % dst_name),
                                                  port, IPERF_SECONDS, traf)
-                dst.cmd(server)
-                src.cmd(client)
-                print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
-                      (src_name, src.IP('%s-eth0' % src_name), dst_name,
-                       dst.IP('%s-eth0' % dst_name), port)
-                port_count += 1
+            dst.cmd(server)
+            src.cmd(client)
+            print 'Started iperf flow %s (%s) -> %s (%s) on port %d' %\
+                  (src_name, src.IP('%s-eth0' % src_name), dst_name,
+                   dst.IP('%s-eth0' % dst_name), port)
+            port_count += 1
+            # sleep(3)
+            raw_input("wait enter")
+        # sleep(30)
 
 def avg(lst):
     return float(sum(lst)) / len(lst)
@@ -201,17 +205,19 @@ def main(args):
     os.system('killall -9 ' + IPERF_PATH)
 
     start = time()
-    topo = AbileneTopo()
+    topo = AsymmetricTopo()
     net = Mininet(topo=topo, link=TCLink)
     net.addController(name='dhrController', controller=RemoteController,
                       ip='127.0.0.1', port=6633)
     net.start()
     # dumpNodeConnections(net.hosts)
 
-    print 'wait 10 secs to install paths'
-    sleep(10)
+    print 'wait 5 secs for installing paths'
+    sleep(5)
 
     # CLI(net)
+    # net.pingAll()
+    # sleep(10)
 
     #print 'Generating the traffic pattern in "%s"...' % args.traffic
     port_count = 0
@@ -226,6 +232,10 @@ def main(args):
     sample_durations = []
     for name in HOST_NAMES:
         rxbytes[name] = []
+
+    # sleep(20)
+
+    # CLI(net)
 
     now = time()
     for i in xrange(N_SAMPLES):

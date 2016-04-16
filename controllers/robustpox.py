@@ -1,10 +1,8 @@
 #!/usr/bin/python
-# Filename: multipox.py
+# Filename: robustpox.py
 
 """
-    DynamicHybridRouting + POX.
-    Second version try to make multipath for the same host
-    use tcp port to put different flows into different paths
+    RobustRouting + POX.
 """
 
 import os
