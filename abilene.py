@@ -47,7 +47,7 @@ HOST_NAMES = ('1_2', '2_2', '3_2', '4_2',
 lg.setLogLevel('info')
 
 parser = ArgumentParser(description='Producing DHR results')
-parser.add_argument('algorithm', type=str, choices=('dhr','robust'),
+parser.add_argument('algorithm', type=str, choices=('dhr','robust','oblivious'),
                     help='Routing algorithm for saving results')
 parser.add_argument('traffic', type=str,
                     help='Traffic JSON file created by traffic.py to use')
@@ -254,7 +254,7 @@ def main(args):
     print 'Standard deviation: %f bytes/sec (%f Gbps)' %\
           (agg_stddev, stddev_gbps)
 
-    #save_results(mean_gbps, stddev_gbps)
+    save_results(mean_gbps, stddev_gbps)
 
     # CLI(net)
 
