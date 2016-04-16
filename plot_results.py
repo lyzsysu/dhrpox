@@ -28,7 +28,7 @@ DHR_STDDEV = 'dhr_stddev_gbps'
 ROBUST_MEAN = 'robust_mean_gbps'
 ROBUST_STDDEV = 'robust_stddev_gbps'
 OBLIVIOUS_MEAN = 'oblivious_mean_gbps'
-OBILVIOUS_STDDEV = 'oblivious_stddev_gbps'
+OBLIVIOUS_STDDEV = 'oblivious_stddev_gbps'
 
 # Plot params
 TRAFFICS_PER_ROW = 6
@@ -133,7 +133,7 @@ def plot(data):
                 color='r',
                 yerr=row_dhr_devs,
                 error_kw=ERROR_CONFIG,
-                label='DHR')
+                label='Dynamic Hybrid Routing')
 
         # OBLIVIOUS bars
         plt.bar(index2, row_oblivious_avgs, BAR_WIDTH,
@@ -141,7 +141,7 @@ def plot(data):
                 color='g',
                 yerr=row_oblivious_devs,
                 error_kw=ERROR_CONFIG,
-                label='Global First-Fit')
+                label='Oblivious Routing')
 
         plt.xticks(index2, row_traffics)
 

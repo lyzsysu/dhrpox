@@ -43,10 +43,10 @@ def main():
 
     traffile = usr_home + "/dhrpox/traffic/288TM"
     tm = read_traffic(traffile, num_matrix, num_switch)
-    
-    outfile = usr_home + "/dhrpox/traffic/TM1.json"
-    generate_json(outfile, tm[0])
-        
 
+    for i in range(0,10):    
+        outfile = usr_home + "/dhrpox/traffic/TM" + str(i) + ".json"
+        generate_json(outfile, tm[i * 28])
+        
 if __name__ == "__main__":
     main()

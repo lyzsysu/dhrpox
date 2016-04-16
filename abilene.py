@@ -38,7 +38,7 @@ IPERF_PORT = 5001
 IPERF_PORT_BASE = 5001
 IPERF_SECONDS = 3600
 
-OUTDIR = 'results'
+OUTDIR = 'results/'
 
 HOST_NAMES = ('1_2', '2_2', '3_2', '4_2',
               '5_2', '6_2', '7_2', '8_2',
@@ -92,8 +92,8 @@ def start_traffic(net, port_count):
                   (src_name, src.IP('%s-eth0' % src_name), dst_name,
                    dst.IP('%s-eth0' % dst_name), port)
             port_count += 1
-            # sleep(3)
-            raw_input("wait enter")
+            sleep(0.5)
+            # raw_input("wait enter")
         # sleep(30)
 
 def avg(lst):
@@ -236,6 +236,8 @@ def main(args):
     # sleep(20)
 
     # CLI(net)
+
+    raw_input("enter 'Enter' to start taking sample...")
 
     now = time()
     for i in xrange(N_SAMPLES):
