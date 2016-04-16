@@ -144,20 +144,20 @@ class DHRController(object):
             self.macTable[packet.src] = (dpid, in_port)
             if packet.dst in self.macTable:
                 out_dpid, final_out_port = self.macTable[packet.dst]
-
                 if isinstance(packet.next, ipv4):
                     match = of.ofp_match.from_packet(packet)
+                    # print match.__dict__
                     if match not in self.packetTable:
                         self.count += 1
                         log.info("%d" % self.count)
-                        #log.info("%s %s %s %s" % (match._nw_src,match._nw_dst,match._tp_src,match._tp_dst))
+                        # log.info("%s %s %s %s" % (match._nw_src,match._nw_dst,match._tp_src,match._tp_dst))
                         self.packetTable[match] = 1
                     else:
                         self.packetTable[match] += 1
-                        #log.info("here we handle a packet reactively")
+                        # log.info("here we handle a packet reactively")
                         log.info("%s" % packet)
                         log.info("the number %d" % self.packetTable[match])
-                        #if self.packetTable[match] == 50:
+                        #if self.packetTable[match] == 200:
                         #    self.packetTable[match] = 1
                         #else:
                         #    return
@@ -169,7 +169,7 @@ class DHRController(object):
 	            route = self._choose_path(self.routeTable[src_dst_pair], 
                                               self.percentTable[src_dst_pair])
             
-                    # log.info("route : %s" % route)
+                    log.info("route : %s" % route)
                     for i, node in enumerate(route):
                         node_dpid = self.t.id_gen(name = node).dpid
                         if i < len(route) - 1:
@@ -183,14 +183,14 @@ class DHRController(object):
                                                              event.data)
                 # else: for arp icmp use the basic path
                 else:
-                    #log.info("get a arp packet %s" % packet.__dict__)   
+                    # log.info("get a arp packet %s" % packet.__dict__)   
                     # Form OF match
                     match = of.ofp_match()
                     match.dl_src = packet.src
                     match.dl_dst = packet.dst
                     match.dl_type = packet.type
                     if match in self.packetTable:
-                        #log.info("ARP has set path")
+                        # log.info("ARP has set path")
                         return
                     self.packetTable[match] = 1
                     src = self.t.id_gen(dpid = event.dpid).sw
@@ -265,46 +265,19 @@ class DHRController(object):
 
   def _save_paths(self):
 
-      robust_path_file = usr_home + "/dhrpox/routing/path/robust_path.txt"
-      robust_path = read_robust_path(robust_path_file, NUMSWITCH)
-
-      cluster_file = \
-      usr_home + "/dhrpox/routing/clusters/clusters_288TM_1.05_35.txt"
-      cluster = read_cluster(cluster_file, NUMSWITCH)
-      num_cluster = len(cluster)
-
-      dhr_path_file = usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt"
-      dhr_path = read_dhr_path(dhr_path_file, NUMSWITCH, num_cluster)
+      oblivious_path_file = usr_home + "/dhrpox/routing/path/oblivious_path.txt"
+      oblivious_path = read_robust_path(oblivious_path_file, NUMSWITCH)
 
       for src in range(NUMSWITCH):
           for dst in range(NUMSWITCH):
 
-              #dhr_performance = MAX
-              #select = 0
-              #for c in range(num_cluster):
-              #    performance = calculate_performance(tm[m], m, dhr_path[c],
-              #                                        link, capacity,
-              #                                        optimal_utilization,
-              #                                        num_switch)
-              #    if performance < dhr_performance:
-              #        dhr_performance = performance
-              #        select = c
-
-              #save robust_path
-              for p in robust_path[src][dst]:
+              #save oblivious_path
+              for p in oblivious_path[src][dst]:
                   route = []
-                  path = robust_path[src][dst][p]['route']
-                  percent = robust_path[src][dst][p]['percent']
+                  path = oblivious_path[src][dst][p]['route']
+                  percent = oblivious_path[src][dst][p]['percent']
                   for sw in path.split("-"):
                       route.append(sw + "_1")
-
-              # save dhr_path
-              #for p in dhr_path[c][src][dst]:
-              #    route = []
-              #    path = robust_path[c][src][dst][p]['route']
-              #    percent = robust_path[c][src][dst][p]['percent']
-              #    for sw in path.split("-"):
-              #        route.append(sw + "_1")
                   
                   src_dst_pair = ((src + 1)<< 4) + dst + 1
                   if src_dst_pair not in self.routeTable:
@@ -341,6 +314,20 @@ class DHRController(object):
                               match.dl_src = EthAddr(self.t.id_gen(name = host_src).etha_str()).toRaw()
                               match.dl_dst = EthAddr(self.t.id_gen(name = host_dst).etha_str()).toRaw()
                               self._install_explicit_path(host_src, host_dst, route, match)
+
+                  # install ICMP path:
+                  #route = self.routeTable[src_dst_pair][0]
+                  #for host_src in sorted (self.t.down_hosts(ingress_router)):
+                  #    for host_dst in sorted (self.t.down_hosts(egress_router)):
+                  #        log.info("route : %s" % route)
+
+                          # Form OF match
+                  #        match = of.ofp_match()
+                  #        match.dl_src = EthAddr(self.t.id_gen(name = host_src).etha_str()).toRaw()
+                  #        match.dl_dst = EthAddr(self.t.id_gen(name = host_dst).etha_str()).toRaw()
+                  #        match.dl_type = 2048
+                  #        match.nw_proto = 1
+                  #        self._install_explicit_path(host_src, host_dst, route, match)
               #else:
               #    # for hosts in the same switch
               #    router = str(src) + '_1'

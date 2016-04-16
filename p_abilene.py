@@ -77,7 +77,10 @@ def start_traffic(net, port_count):
             dst_name = HOST_NAMES[int(dst_idx)]
             dst = net.get(dst_name)
             traf = traffic[src_idx][dst_idx]
-
+            print type(traf)
+            
+            if traf < 15:
+                continue
             port = IPERF_PORT_BASE + port_count
             server = '%s -s -u -p %s -b &' % (IPERF_PATH, port)
             client = '%s -c %s -p %s -t %d -u -b %dK -P 10 &' % (IPERF_PATH,
@@ -212,9 +215,9 @@ def main(args):
     print 'wait 5 secs for installing paths'
     sleep(5)
 
-    CLI(net)
-    net.pingAll()
-    sleep(10)
+    # CLI(net)
+    # net.pingAll()
+    # sleep(10)
 
     #print 'Generating the traffic pattern in "%s"...' % args.traffic
     port_count = 0
@@ -230,9 +233,9 @@ def main(args):
     for name in HOST_NAMES:
         rxbytes[name] = []
 
-    sleep(20)
+    # sleep(20)
 
-    CLI(net)
+    # CLI(net)
 
     now = time()
     for i in xrange(N_SAMPLES):

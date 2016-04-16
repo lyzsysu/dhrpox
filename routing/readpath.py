@@ -64,11 +64,11 @@ def read_robust_path(robust_path_file, num_switch):
             route = line.split("     ")[1]
             # print line.split("     ")[1], line.split("     ")[2]
             percent = line.split("     ")[2].split("%")[0]
-            count = line.split(" ")[1]
+            count = int(line.split(" ")[1]) - 1
 
             robust_path[src][dst][count] = {}
             robust_path[src][dst][count]['route'] = route
-            robust_path[src][dst][count]['percent'] = percent
+            robust_path[src][dst][count]['percent'] = float(percent)
         line = f.readline()
     f.close()
 
@@ -92,11 +92,11 @@ def read_dhr_path(dhr_path_file, num_switch, num_cluster):
         if line.split(" ")[0] == "Path":
             route = line.split("     ")[1]
             percent = line.split("     ")[2].split("%")[0]
-            count = line.split(" ")[1]
+            count = int(line.split(" ")[1]) - 1
 
             dhr_path[c][src][dst][count] = {}
             dhr_path[c][src][dst][count]['route'] = route
-            dhr_path[c][src][dst][count]['percent'] = percent
+            dhr_path[c][src][dst][count]['percent'] = float(percent)
         line = f.readline()
 
     return dhr_path
