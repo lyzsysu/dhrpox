@@ -51,7 +51,7 @@ Use a CS 244 Mininet VM to run the code (either from the class website or an Ama
 
     Terminal #1 - start the remote controller
 
-    `$ sudo ~/pox/pox.py controllers.dhrpox --topo=abilene`
+    `$ sudo ~/pox/pox.py controllers.multipox --topo=asym`
 
     Terminal #2 - start the mininet
 
@@ -59,7 +59,7 @@ Use a CS 244 Mininet VM to run the code (either from the class website or an Ama
     
     eg:
     
-    `$ sudo python ~/dhrpox/abilene.py dhr TM1.json`
+    `$ sudo python ~/dhrpox/p_abilene.py dhr p.json`
 
 7. Debug
 
