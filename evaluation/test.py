@@ -82,7 +82,7 @@ def calculate_utilization(traffic_load, name, capacity):
                                 (math.floor(traffic_load[congested_link] / 10))
                                )
 
-    return link_utilization
+    return mlu
 
 def test_goodput():
      
@@ -122,8 +122,8 @@ def test_goodput():
             if i == j:
                 continue
             tm[0][i][j] = int(tm[0][i][j] / 100)
-            if tm[0][i][j] < 15:
-                tm[0][i][j] = 0
+            #if tm[0][i][j] < 15:
+            #    tm[0][i][j] = 0
             sum_1 += tm[0][i][j]
             print tm[0][i][j]," ",
         print 

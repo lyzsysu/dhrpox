@@ -148,17 +148,19 @@ class DHRController(object):
                     if match not in self.packetTable:
                         self.count += 1
                         log.info("%d" % self.count)
-                        #log.info("%s %s %s %s" % (match._nw_src,match._nw_dst,match._tp_src,match._tp_dst))
+                        # log.info("%s %s %s %s" % 
+                        # (match._nw_src, match._nw_dst, 
+                        # match._tp_src, match._tp_dst))
                         self.packetTable[match] = 1
                     else:
                         self.packetTable[match] += 1
-                        #log.info("here we handle a packet reactively")
+                        # log.info("here we handle a packet reactively")
                         log.info("%s" % packet)
                         log.info("the number %d" % self.packetTable[match])
-                        #if self.packetTable[match] == 50:
-                        #    self.packetTable[match] = 1
-                        #else:
-                        #    return
+                        # if self.packetTable[match] == 50:
+                        #     self.packetTable[match] = 1
+                        # else:
+                        #     return
                     src = self.t.id_gen(dpid = event.dpid).sw
                     dst = self.t.id_gen(dpid = out_dpid).sw
                     if src == dst:
@@ -315,8 +317,8 @@ class DHRController(object):
       log.info("all the paths have been saved in the routeTable")
       # next step is to put the route on the topology
 
-      #self._install_paths()
-      #log.info("all basic paths set")
+      # self._install_paths()
+      # log.info("all basic paths set")
 
   def _install_paths(self):
 

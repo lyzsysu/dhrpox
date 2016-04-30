@@ -16,6 +16,7 @@ sys.path.append(usr_home + "/dhrpox/routing")
 
 import random
 import logging
+import math
 from struct import pack
 from zlib import crc32
 from copy import copy
@@ -38,6 +39,9 @@ from util import buildTopo
 # my package
 from switch import Switch
 
+from readlink import *
+from readtraffic import *
+from generate_routing_policies import *
 from readpath import *
 
 # include as part of the betta branch
@@ -70,10 +74,13 @@ class DHRController(object):
       self.switches = {}
       self.t = t # Master Topo object, passed in and never modified.
 
+      # Some tables saved in the controller.
       self.routeTable = {}
       self.percentTable = {}
       self.macTable = {}
       self.packetTable = {}
+
+      self.cluster = 0
 
       self.count = 0
 
@@ -85,6 +92,7 @@ class DHRController(object):
 
   def _flood(self, event):
 
+      # Flood the packet to all the ports.
       packet = event.parsed
       dpid = event.dpid
       in_port = event.port
@@ -103,12 +111,11 @@ class DHRController(object):
 
   def _ecmp_hash(self, packet):
 
-      '''
-        Return an ECMP-style 5-tuple hash for TCP/IP packets, otherwise 0.
-      '''
+      """ Return an ECMP-style 5-tuple hash for TCP/IP packets, otherwise 0.
+      """
 
       hash_input = [0] * 5
-      if isinstance(packet.next, ipv4):
+      if isinstance(packet.next, ipv4): # Only hash tcp packets.
           ip = packet.next
           hash_input[0] = ip.srcip.toUnsigned()
           hash_input[1] = ip.dstip.toUnsigned()
@@ -120,9 +127,61 @@ class DHRController(object):
               return crc32(pack('LLHHH', *hash_input))
       return 0 
 
+  def calculate_background_load(self, tm, link, path):
+      
+      """ Calculate the background load of traffic in each link.
+      """
+
+      num_switch = len(tm[0])
+
+      tmp_link_traffic = [[0 for col in range(num_switch)]
+                           for row in range(num_switch)]
+      link_traffic = {}
+
+      for src in range(num_switch):
+          for dst in range(num_switch):
+              if tm[src][dst] != 0:
+                  for num in range(len(path[src][dst])):
+                      route = path[src][dst][num]['route'].split("-")
+                      route_len = len(route)
+                      percentage = path[src][dst][num]['percent']
+
+                      for i in range(route_len - 1):
+                          (fst, sec) = (int(route[i]) - 1, int(route[i + 1]) - 1)
+                          tmp_link_traffic[fst][sec] += (tm[src][dst]
+                                                         * percentage)
+
+              for l in link:
+                  (fst, sec) = link[l]
+                  link_traffic[l] = tmp_link_traffic[fst][sec]
+
+      return link_traffic
+
+  def calculate_utilization(self, traffic_load, capacity):
+
+    """ Use the load and the capacity to calculate the utilization of each link.
+    """
+
+    link_utilization = {}
+
+    mlu = 0 # The utilization of the congested link.
+    congested_link = 0
+    for l in range(len(traffic_load)):
+        link_utilization[l] = math.floor(traffic_load[l] / 10) / float(capacity[l])
+        # print link_utilization[l]," ",
+
+        if link_utilization[l] > mlu:
+            mlu = link_utilization[l]
+            congested_link = l
+
+    return mlu
+
   def _handle_PacketIn(self, event):
 
-    if not self.all_switches_up:
+    """ Handle all packet hand in to the controller.
+    """
+
+    if not self.all_switches_up: # When switch not ok yet, do nothing.
         log.info("Saw PacKetIn %s before all switches were up \
                  -ignoring." % event.parsed)
         return
@@ -133,15 +192,14 @@ class DHRController(object):
         t = self.t
 
         self.macTable[packet.src] = (dpid, in_port)
-        if packet.dst.isMulticast():
+        if packet.dst.isMulticast(): # Flood the multicast packet.
             self._flood(event)
 
         else:
-            
             # log.info("src  = %s" % packet.src)
             # log.info("dst  = %s" % packet.dst)
             self.macTable[packet.src] = (dpid, in_port)
-            if packet.dst in self.macTable:
+            if packet.dst in self.macTable: # If the controller knows the mac.
                 out_dpid, final_out_port = self.macTable[packet.dst]
 
                 if isinstance(packet.next, ipv4):
@@ -149,7 +207,9 @@ class DHRController(object):
                     if match not in self.packetTable:
                         self.count += 1
                         log.info("%d" % self.count)
-                        #log.info("%s %s %s %s" % (match._nw_src,match._nw_dst,match._tp_src,match._tp_dst))
+                        # log.info("%s %s %s %s" % 
+                        # (match._nw_src,match._nw_dst, 
+                        #  match._tp_src,match._tp_dst))
                         self.packetTable[match] = 1
                     else:
                         self.packetTable[match] += 1
@@ -165,8 +225,9 @@ class DHRController(object):
                     if src == dst:
                         return
                     src_dst_pair = (src << 4) + dst
-	            route = self._choose_path(self.routeTable[src_dst_pair], 
-                                              self.percentTable[src_dst_pair])
+	            route = self._choose_path(\
+                            self.routeTable[self.cluster][src_dst_pair], 
+                            self.percentTable[self.cluster][src_dst_pair])
             
                     # log.info("route : %s" % route)
                     for i, node in enumerate(route):
@@ -180,9 +241,10 @@ class DHRController(object):
                         self.switches[node_dpid].install(out_port, match, priority = PRIO_HIGH)
                     self.switches[out_dpid].send_packet_data(final_out_port,
                                                              event.data)
-                # else: for arp icmp use the basic path
-                else:
+
+                else: # else: for arp icmp use the basic path
                     #log.info("get a arp packet %s" % packet.__dict__)   
+
                     # Form OF match
                     match = of.ofp_match()
                     match.dl_src = packet.src
@@ -197,8 +259,9 @@ class DHRController(object):
                     if src == dst:
                         return
                     src_dst_pair = (src << 4) + dst
-	            route = self._choose_path(self.routeTable[src_dst_pair], 
-                                              self.percentTable[src_dst_pair])
+	            route = self._choose_path(\
+                            self.routeTable[self.cluster][src_dst_pair], 
+                            self.percentTable[self.cluster][src_dst_pair])
             
                     # log.info("route : %s" % route)
                     for i, node in enumerate(route):
@@ -212,10 +275,12 @@ class DHRController(object):
                         self.switches[node_dpid].install(out_port, match, priority = PRIO_LOW)
                     self.switches[out_dpid].send_packet_data(final_out_port,
                                                              event.data)
-            else:
+
+            else: # Flood the packet when the mac is not known.
                 self._flood(event)
 
   def _handle_FlowStatsReceived (self, event):
+
       stats = flow_stats_to_list(event.stats)
       log.debug("FlowStatsReceived from %s: %s", \
                 dpidToStr(event.connection.dpid), stats)
@@ -235,6 +300,10 @@ class DHRController(object):
                    all_bytes, all_packet, all_flows)
 
   def _choose_path(self, route_list, percent_list):
+
+      """ Choose path based on the routing path table saved in controller.
+      """
+
       while(True):
           for i in range(0, len(route_list)):
               if random.random() * 100 < percent_list[i]:
@@ -275,49 +344,29 @@ class DHRController(object):
       dhr_path_file = usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt"
       dhr_path = read_dhr_path(dhr_path_file, NUMSWITCH, num_cluster)
 
-      for src in range(NUMSWITCH):
-          for dst in range(NUMSWITCH):
-
-              #dhr_performance = MAX
-              #select = 0
-              #for c in range(num_cluster):
-              #    performance = calculate_performance(tm[m], m, dhr_path[c],
-              #                                        link, capacity,
-              #                                        optimal_utilization,
-              #                                        num_switch)
-              #    if performance < dhr_performance:
-              #        dhr_performance = performance
-              #        select = c
-
-              #save robust_path
-              for p in robust_path[src][dst]:
-                  route = []
-                  path = robust_path[src][dst][p]['route']
-                  percent = robust_path[src][dst][p]['percent']
-                  for sw in path.split("-"):
-                      route.append(sw + "_1")
-
-              # save dhr_path
-              #for p in dhr_path[c][src][dst]:
-              #    route = []
-              #    path = robust_path[c][src][dst][p]['route']
-              #    percent = robust_path[c][src][dst][p]['percent']
-              #    for sw in path.split("-"):
-              #        route.append(sw + "_1")
+      for c in range(num_cluster):
+          self.routeTable[c] = {}
+          self.percentTable[c] = {}
+          for src in range(NUMSWITCH):
+              for dst in range(NUMSWITCH):
+                  # save dhr_path
+                  for p in dhr_path[c][src][dst]:
+                      route = []
+                      path = dhr_path[c][src][dst][p]['route']
+                      percent = dhr_path[c][src][dst][p]['percent']
+                      for sw in path.split("-"):
+                          route.append(sw + "_1")
                   
-                  src_dst_pair = ((src + 1)<< 4) + dst + 1
-                  if src_dst_pair not in self.routeTable:
-                      # initialize the tables for the src id
-                      self.routeTable[src_dst_pair] = []
-                      self.percentTable[src_dst_pair] = []
-                  self.routeTable[src_dst_pair].append(route)
-                  self.percentTable[src_dst_pair].append(float(percent))
+                      src_dst_pair = ((src + 1)<< 4) + dst + 1
+                      if src_dst_pair not in self.routeTable[c]:
+                          # initialize the tables for the src id
+                          self.routeTable[c][src_dst_pair] = []
+                          self.percentTable[c][src_dst_pair] = []
+                      self.routeTable[c][src_dst_pair].append(route)
+                      self.percentTable[c][src_dst_pair].append(float(percent))
 
       log.info("all the paths have been saved in the routeTable")
       # next step is to put the route on the topology
-
-      #self._install_paths()
-      #log.info("all basic paths set")
 
   def _install_paths(self):
 
@@ -328,18 +377,6 @@ class DHRController(object):
                   ingress_router = str(src) + '_1'
                   egress_router = str(dst) + '_1'
 
-                  # log.info("%d" % len(self.routeTable[src_dst_pair]))
-                  if len(self.routeTable[src_dst_pair]) == 1:
-                      route = self.routeTable[src_dst_pair][0]
-                      for host_src in sorted (self.t.down_hosts(ingress_router)):
-                          for host_dst in sorted (self.t.down_hosts(egress_router)):
-                              log.info("route : %s" % route)
-
-                              # Form OF match
-                              match = of.ofp_match()
-                              match.dl_src = EthAddr(self.t.id_gen(name = host_src).etha_str()).toRaw()
-                              match.dl_dst = EthAddr(self.t.id_gen(name = host_dst).etha_str()).toRaw()
-                              self._install_explicit_path(host_src, host_dst, route, match)
               #else:
               #    # for hosts in the same switch
               #    router = str(src) + '_1'
@@ -352,6 +389,35 @@ class DHRController(object):
               #    match.dl_dst = \
               #    EthAddr(self.t.id_gen(name = host_dst).etha_str()).toRaw()
               #    self.switches[node_dpid].install(final_out_port, match)
+
+  def test (self, num_matrix):
+      m = num_matrix
+
+      link_file = usr_home + "/dhrpox/topology/abilene.txt"
+      link, capacity, num_switch, num_link = read_link(link_file)
+
+      traffic_file = usr_home + "/dhrpox/traffic/288TM"
+      tm = read_traffic(traffic_file, 288, num_switch)
+
+      cluster_file = (usr_home +
+                      "/dhrpox/routing/clusters/clusters_288TM_1.05_35.txt")
+      cluster = read_cluster(cluster_file, num_switch)
+
+      num_cluster = len(cluster)
+
+      dhr_path_file = usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt"
+      dhr_path = read_dhr_path(dhr_path_file, NUMSWITCH, num_cluster)
+
+      min_mlu = 1000
+      for c in range(num_cluster):
+          load = self.calculate_background_load(tm[m], link, dhr_path[c])
+          mlu = self.calculate_utilization(load, capacity)
+
+          if mlu < min_mlu:
+              min_mlu = mlu
+              self.cluster = c
+      
+      print "Using the dhr paths for cluster %d" % self.cluster
 
   def _handle_ConnectionUp (self, event):
 
@@ -380,9 +446,18 @@ class DHRController(object):
           self.all_switches_up = True
 
           self._save_paths()
+
           # log.info("self.routeTable : %s" % self.routeTable)
-          self._install_paths()
+
+          # self._install_paths()
+
           log.info("Woo! All paths ok")
+
+          # suppose here we have a traffic matrix
+          # find the routing policies for this traffic matrix
+          for i in range(10):
+              num_matrix = i
+              self.test(num_matrix)
 
 def _timer_func():
 

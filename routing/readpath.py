@@ -11,10 +11,12 @@ sys.path.append(usr_home + "/dhrpox/routing")
 
 def read_cluster(filename, num_switch):
 
-    """ read cluster from txt file """
+    """ Read cluster from txt file.
+    """
 
     f = open(filename)
 
+    # variable initialization
     num_m = num_c = -1
     src = dst = 0
 

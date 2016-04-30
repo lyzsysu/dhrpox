@@ -22,8 +22,9 @@ MAX = 100000000
 def calculate_merging_cost(cluster_a, cluster_b, all_tm,
                            link, capacity, num_pair):
 
-    """ merge cluster_b into cluster_a, and return the performance 
-        after merging """
+    """ Merge cluster_b into cluster_a, and return the performance 
+        after merging.
+    """
 
     num_matrix = len(cluster_a) + len(cluster_b)
     num_switch = len(cluster_a[0])
@@ -57,11 +58,13 @@ def insert_traffic_matrices(cluster_a, cluster_b):
 
 def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
     
-    """ do the clustering by input all the tm """
+    """ Clustering by input all the traffic matrices.
+    """
 
     # Initialize each given traffic matrix as a cluster, 
     # set cluster number CN = L 
     # (L is the number of total given traffic matrices)
+
     start = time()
 
     num_matrix = len(traffic_matrix)
@@ -83,18 +86,17 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
 
     # read cost from cost file
 
-    #f = open(usr_home + "/dhrpox/routing/cost/cost_" + str(num_matrix) + \
-    #         "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt")
-    #line = f.readline()
-    #while line:
-    #    i = int(line.split(' ')[0])
-    #    j = int(line.split(' ')[1])
-    #    cost[i][j] = float(line.split(' ')[2])
-    #    line = f.readline()
-    #f.close()
+    # f = open(usr_home + "/dhrpox/routing/cost/cost_" + str(num_matrix) + \
+    #          "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt")
+    # line = f.readline()
+    # while line:
+    #     i = int(line.split(' ')[0])
+    #     j = int(line.split(' ')[1])
+    #     cost[i][j] = float(line.split(' ')[2])
+    #     line = f.readline()
+    # f.close()
 
     # calculate cost and save them into cost file
-
     for i in cluster:
         for j in cluster:
             if i == j:
@@ -112,14 +114,17 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
 
     print "use time: ", (time() - start), " secs."
 
+    # open the cost file to save the clustering cost
     f = open(usr_home + "/dhrpox/routing/cost/cost_" + str(num_matrix) + \
              "TM_" + str(p_threshold) + "_" + str(num_pair) + ".txt","w+")
+
     for i in range(num_cluster):
         for j in range(num_cluster):
             f.write("%d %d %f" % (i, j, cost[i][j]))
             f.write("\n")
     f.close()
 
+    # start to cluster
     while num_cluster != 1:
         #  Find the pair of clusters Ci and Cj with minimum costi, j.
         #  If the minimum costi, j > Pthreshold, set R =CN and exit.
@@ -163,6 +168,7 @@ def clustering(traffic_matrix, link, capacity, p_threshold, num_pair):
                     print "update cost %d,%d : %f" % (selected_a, j,
                                                       cost[selected_a][j]) 
 
+    # save the clusters into the dict
     clusters_after_clustering = {}
     num_cluster = 0
     for i in cluster:

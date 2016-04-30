@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # Filename: util.py
 
-""" provide some functions for basic_routing and explicit_routing"""
+""" Provide some functions for basic routing and explicit routing.
+"""
 
 import os
 usr_home = os.path.expanduser('~')
@@ -18,8 +19,9 @@ from basic_routing import *
 def search_basic_path(dst, egress_switch, tmp_path, tmp_percent, 
                 fraction, link, path):
 
-    """ deep first search for the path from an ingress switch 
-        to an egress switch """
+    """ Deep first search for the path from an ingress switch 
+        to an egress switch.
+    """
 
     num_link = len(link)
 
@@ -45,8 +47,9 @@ def search_basic_path(dst, egress_switch, tmp_path, tmp_percent,
 
 def allocation_2_path(allocation, link, num_switch):
     
-    """ this function is used to derive destination-based routing fractions 
-        and paths from traffic allocation """
+    """ Derive destination-based routing fractions 
+        and paths from traffic allocation.
+    """
 
     num_link = len(link)
 
@@ -100,9 +103,10 @@ def allocation_2_path(allocation, link, num_switch):
 
 def path_2_contribution(path, num_switch):
 
-    """ this function get the mapping of which src-dst pair
+    """ Get the mapping of which src-dst pair
         have contribution on the link,
-        and save it in the "contribution" dict """
+        and save it in the "contribution" dict.
+    """
 
     contribution = {}
 
@@ -123,7 +127,8 @@ def path_2_contribution(path, num_switch):
 def search_explicit_path(p, src, egress_switch, tmp_path, tmp_percent,
                 fraction, link, path):
 
-    """ deep first search for the path from a switch to another """
+    """ Deep first search for the path from a switch to another.
+    """
 
     num_link = len(link)
 
@@ -152,8 +157,9 @@ def search_explicit_path(p, src, egress_switch, tmp_path, tmp_percent,
 
 def explicit_fraction_2_path(fraction, selected_node_pair, link):
 
-    """ get the explicit path for selected node pairs 
-        based on the explicit fraction """
+    """ Get the explicit path for selected node pairs 
+        based on the explicit fraction.
+    """
 
     num_pair = len(selected_node_pair)
 

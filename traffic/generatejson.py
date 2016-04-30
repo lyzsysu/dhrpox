@@ -10,7 +10,8 @@ from readtraffic import *
 
 def generate_json(filename, tm):
 
-    """ generate traffic json by tm and save into a file called *.json """
+    """ Generate traffic json by tm and save into a file called *.json
+    """
 
     num_switch = len(tm)
 

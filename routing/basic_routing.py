@@ -19,13 +19,15 @@ SMALL = 0.000001
 
 def build_model(prob, tm, link, capacity):
 
-    """ build the model for the destination based routing """
+    """ Build the model for the destination based routing.
+    """
 
     num_link = len(link)
     num_switch = len(tm)
  
     prob.objective.set_sense(prob.objective.sense.minimize)
 
+    # variable initialization
     obj = [SMALL] * (num_switch * num_link + 1)
     colnames = [""] * (num_switch * num_link + 1)
     rmatind = [0] * (num_switch * num_link + 1)
@@ -91,8 +93,9 @@ def build_model(prob, tm, link, capacity):
 
 def destination_based_routing(tm, link, capacity):
 
-    """ this function is used to calculate the maximum link utilization
-        and the traffic allocation """
+    """ Calculate the maximum link utilization
+        and the traffic allocation.
+    """
 
     num_link = len(link)
     num_switch = len(tm) 
@@ -115,8 +118,6 @@ def destination_based_routing(tm, link, capacity):
 
     sol = prob.solution
 
-    # print the solution
-    # print
     # solution.get_status() returns an integer code
     # print "Solution status = ", sol.get_status(), ": "
     
@@ -128,8 +129,6 @@ def destination_based_routing(tm, link, capacity):
     
     # mlu is the last variable
     mlu = x[num_switch * num_link]
-
-    # print "mlu = ", mlu
 
     # calculating the corresponding destination-based routing allocation
     allocation = [[0 for col in range(num_link)]for row in range(num_switch)]

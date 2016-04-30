@@ -1,12 +1,17 @@
 #!/usr/bin/python
-# Filename: readtraffic.py
+# Filename: t_readtraffic.py
+# this read_traffic is different because of the main function
+# it calculate the ingress traffic sum and egress traffic sum by 
+# finding the largest in all tm
+# not the sum of each num
+# is a better way to calculate for oblivious routing
 
 import sys
 import os
 
 def read_traffic(filename, num_matrix, num_switch):
 
-    """ read traffic matrix from filename
+    """ read traffic matrix from filename tmp
         tm: list eg: tm[0][src][dst] = 100 """
 
     tm = [[[0.0 for s in range(num_switch)] 

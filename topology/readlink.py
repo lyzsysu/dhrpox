@@ -6,11 +6,12 @@ import os
 
 def read_link(filename):
 
-    """ read topology from filename, 
+    """ Read topology from filename.
         link: dict eg: LINK[0] = (0, 1) 
              means the first link is from switch 0 to switch 1
 
-        capacity: dict eg: capacities[0] = 992 """
+        capacity: dict eg: capacities[0] = 992
+    """
 
     link = {}
     capacity = {}

@@ -3,10 +3,10 @@
 # Producing the results of the DHR paper.
 #
 # Running the POX controller:
-# $ ~/pox/pox.py controllers.dhrlpox --topo=abilene
+# $ ~/pox/pox.py controllers.dhrpox --topo=abilene
 #
 # Running Mininet via this script (second terminal window)
-# $ sudo python abilene.py dhr traffic.json
+# $ sudo python abilene.py dhr TM0.json
 #
 # by Eugene Lee
 
@@ -61,8 +61,8 @@ if not os.path.isdir(OUTDIR):
 
 def start_traffic(net, port_count):
 
-    """
-    Start long-lived iperf flows for all the (src, dst) pairs in traffic_file.
+    """ Start long-lived iperf flows for all the (src, dst) pairs
+        in traffic_file. 
     """
 
     with open(("traffic/" + args.traffic), 'r') as f:
@@ -97,9 +97,15 @@ def start_traffic(net, port_count):
         # sleep(30)
 
 def avg(lst):
+    """ 
+    Return the average of the list. 
+    """
     return float(sum(lst)) / len(lst)
 
 def variance(lst):
+    """
+    Return the variance of the list.
+    """
     mean = avg(lst)
     diffs_sqrd = []
     for val in lst:
@@ -136,14 +142,12 @@ def sample_rxbytes(net, rxbytes):
 3_1_3-eth0: 33714765732 1133072    0    0    0     0          0         0 25308223734 1110457    0    0    0     0       0          0
     """
     for name in HOST_NAMES:
-        # print name
         host = net.get(name)
         iface = '%s-eth0:' % name
         bytes = None
 
         now = time()
         res = host.cmd('cat /proc/net/dev')
-        # print (time() - now)
         lines = res.split('\n')
         for line in lines:
             if iface in line:
@@ -204,6 +208,7 @@ def main(args):
     # Shut down iperf processes
     os.system('killall -9 ' + IPERF_PATH)
 
+    # Start mininet
     start = time()
     topo = AsymmetricTopo()
     net = Mininet(topo=topo, link=TCLink)
@@ -217,9 +222,9 @@ def main(args):
 
     # CLI(net)
     # net.pingAll()
-    # sleep(10)
 
-    #print 'Generating the traffic pattern in "%s"...' % args.traffic
+    # Start traffic
+    # print 'Generating the traffic pattern in "%s"...' % args.traffic
     port_count = 0
     # for i in range(10):
     start_traffic(net, port_count)
@@ -239,6 +244,7 @@ def main(args):
 
     raw_input("enter 'Enter' to start taking sample...")
 
+    # Take sample
     now = time()
     for i in xrange(N_SAMPLES):
         print 'Taking sample %d of %d...' % (i, N_SAMPLES)

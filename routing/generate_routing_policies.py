@@ -18,7 +18,8 @@ from readpath import *
 
 def read_cluster(filename, num_switch):
 
-    """ read cluster from txt file """
+    """ Read cluster from txt file.
+    """
 
     f = open(filename)
 
@@ -56,7 +57,10 @@ def read_cluster(filename, num_switch):
     return cluster
 
 def main(argv):
-    
+   
+    """ Generate routing policy.
+    """
+ 
     num_matrix = int(argv[1])
     p_threshold = float(argv[2])
     num_pair = int(argv[3])
@@ -74,26 +78,31 @@ def main(argv):
 
     output_file = usr_home + "/dhrpox/routing/path/dhr_" \
                    + str(num_matrix) + "TM_" + str(p_threshold) + "_" \
-                   + str(num_pair) + ".txt"
+                   + str(num_pair) + "test.txt"
 
     f = open(output_file,"w+")
 
+    # read traffic matrices
     traffic_file = usr_home + "/dhrpox/traffic/288TM"
     tm = read_traffic(traffic_file, num_matrix, num_switch)
+
+    # calculate the basic traffic matrix
     basic_traffic_matrix = get_basic_tm(tm, num_switch)
+
+    # calculate the destination based routing based on basic traffic matrix
     mlu, allocation = destination_based_routing(basic_traffic_matrix, 
                                                 link, capacity)    
     path = allocation_2_path(allocation, link, num_switch)
 
     for c in range(num_cluster):
+
         f.write("Cluster %d: \n" % (c + 1))
+        # basic_traffic_matrix = get_basic_tm(cluster[c], num_switch)
+        # mlu, allocation = destination_based_routing(basic_traffic_matrix,
+        #                                             link, capacity)
+        # path = allocation_2_path(allocation, link, num_switch)
 
-        #basic_traffic_matrix = get_basic_tm(cluster[c], num_switch)
-        #mlu, allocation = destination_based_routing(basic_traffic_matrix,
-        #                                            link, capacity)
-        #path = allocation_2_path(allocation, link, num_switch)
-
-
+        # calculate explict routing for each cluster
         performance, explicit_fraction, selected_node_pair = \
         explicit_routing(cluster[c], tm, link, capacity)
         
@@ -154,6 +163,7 @@ def main(argv):
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        raise Exception("you should input 'python clustering.py num_matrix" +
-                        " p_threshold selected_node_pair")
+        raise Exception(
+        "you should input 'python generate_routing_policies.py num_matrix" +
+        " p_threshold selected_node_pair")
     main(sys.argv)

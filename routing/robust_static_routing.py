@@ -19,10 +19,12 @@ SMALL = 0.000001
 
 def build_model(prob, tm, link, capacity, opt_utilization):
 
-    """ build the model for the robust static routing """
+    """ Build the model for the robust static routing.
+    """
 
     prob.objective.set_sense(prob.objective.sense.minimize)
 
+    # variable initialization
     num_matrix = len(tm)
     num_switch = len(tm[0])
     num_link = len(link)
@@ -117,8 +119,9 @@ def build_model(prob, tm, link, capacity, opt_utilization):
 
 def robust_fraction_2_path(fraction, link, num_switch):
 
-    """ get the explicit path for selected node pairs
-        based on the explicit fraction """
+    """ Get the explicit path for selected node pairs
+        based on the explicit fraction.
+    """
 
     num_pair = (num_switch) * (num_switch - 1)
 
@@ -140,7 +143,8 @@ def robust_fraction_2_path(fraction, link, num_switch):
 
 def robust_static_routing(tm, link, capacity, opt_utilization):
 
-    """ implement the robust_static_routing as comparasion """
+    """ Implement the robust static routing as comparasion.
+    """
 
     num_link = len(link)
     num_switch = len(tm[0])

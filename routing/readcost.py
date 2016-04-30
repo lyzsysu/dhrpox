@@ -6,10 +6,10 @@ usr_home = os.path.expanduser('~')
 
 import sys
 
-
 def read_cost(filename, num_cluster):
 
-    """ read the cost of merging each clusters """
+    """ Read the cost of merging each clusters.
+    """
 
     cost = [[0.0 for col in range(num_cluster)]
                  for row in range(num_cluster)]

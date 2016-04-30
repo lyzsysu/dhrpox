@@ -150,7 +150,6 @@ def plot(data):
         elif r == n_rows - 1:
             plt.xlabel('Traffic pattern')
 
-        # TODO: Can I make the ylabels smaller or wrapped? This is ugly
         if r == 1:
             plt.ylabel('Total throughput (Gbps)')
 
