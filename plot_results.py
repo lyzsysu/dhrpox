@@ -31,7 +31,7 @@ OBLIVIOUS_MEAN = 'oblivious_mean_gbps'
 OBLIVIOUS_STDDEV = 'oblivious_stddev_gbps'
 
 # Plot params
-TRAFFICS_PER_ROW = 6
+TRAFFICS_PER_ROW = 5
 LEGEND_BEST = 0
 LEGEND_UPPER_LEFT = 2
 LEGEND_CENTER_BOTTOM = 8
