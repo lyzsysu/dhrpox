@@ -7,6 +7,7 @@
 """
 
 import os
+import json
 usr_home = os.path.expanduser('~')
 
 import sys
@@ -390,7 +391,46 @@ class DHRController(object):
               #    EthAddr(self.t.id_gen(name = host_dst).etha_str()).toRaw()
               #    self.switches[node_dpid].install(final_out_port, match)
 
-  def test (self, num_matrix):
+  def input_traffic(self):
+      
+      with open((usr_home + "/dhrpox/traffic/TM0.json"), 'r') as f:
+          traffic = json.load(f)
+
+      link_file = usr_home + "/dhrpox/topology/abilene.txt"
+      link, capacity, num_switch, num_link = read_link(link_file)
+
+      tm = [[0.0 for s in range(num_switch)]
+                 for d in range(num_switch)]
+
+      for src in traffic:
+          i = int(src) - 1
+          for dst in traffic[src]:
+              j = int(dst) - 1
+              tm[i][j] = traffic[src][dst]
+
+      cluster_file = (usr_home +
+                      "/dhrpox/routing/clusters/clusters_288TM_1.05_35.txt")
+      cluster = read_cluster(cluster_file, num_switch)
+
+      num_cluster = len(cluster)
+
+      dhr_path_file = usr_home + "/dhrpox/routing/path/dhr_288TM_1.05_35.txt"
+      dhr_path = read_dhr_path(dhr_path_file, NUMSWITCH, num_cluster)
+
+      min_mlu = 1000
+      for c in range(num_cluster):
+          load = self.calculate_background_load(tm, link, dhr_path[c])
+          mlu = self.calculate_utilization(load, capacity)
+
+          if mlu < min_mlu:
+              min_mlu = mlu
+              self.cluster = c
+      
+      print "Using the dhr paths No.%d to route actual_TM" % self.cluster
+
+      return traffic
+
+  def test(self, num_matrix):
       m = num_matrix
 
       link_file = usr_home + "/dhrpox/topology/abilene.txt"
@@ -455,9 +495,10 @@ class DHRController(object):
 
           # suppose here we have a traffic matrix
           # find the routing policies for this traffic matrix
-          for i in range(10):
-              num_matrix = i
-              self.test(num_matrix)
+          #for i in range(10):
+          #    num_matrix = i
+          #    self.test(num_matrix)
+          self.input_traffic()
 
 def _timer_func():
 
